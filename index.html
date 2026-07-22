@@ -458,9 +458,11 @@ function navigate(routeId, param=null){
 async function doLogin(identifier, password, btn){
   btn.disabled = true; btn.textContent = 'Entrando...';
   try{
-    const data = await api('/auth/login', {method:'POST', body:{ identifier, email: identifier, username: identifier, password }});
+    const data = await api('/auth/login', {method:'POST', body:{ emailOrUsername: identifier, password }});
     applyAuthPayload(data);
-    if(!state.user){ await fetchMe(); }
+    // AuthResponse.user (UserSummary) só traz id/username/email/displayName —
+    // sem nível, XP, carteira ou roles. Por isso sempre buscamos o perfil completo.
+    await fetchMe();
     toast('Bem-vindo de volta, '+ (state.user?.displayName||'') +'!', 'success');
     navigate('dashboard');
     connectSocket();
@@ -477,7 +479,7 @@ async function doRegister(name, email, password, btn){
     const data = await api('/auth/register', {method:'POST', body:{ name, displayName:name, username:name, email, password }});
     if(data && (data.accessToken || data.access_token)){
       applyAuthPayload(data);
-      if(!state.user) await fetchMe();
+      await fetchMe();
       toast('Conta criada! Bem-vindo ao MIB.', 'success');
       navigate('dashboard'); connectSocket(); refreshNotifCount();
     }else{
@@ -491,7 +493,7 @@ async function doRegister(name, email, password, btn){
   }
 }
 async function fetchMe(){
-  try{ const me = await api('/profile/me'); state.user = normalizeUser(me); }catch(e){ /* ignore */ }
+  try{ const me = await api('/profile/me'); state.user = normalizeUser(Object.assign({}, state.user, me)); }catch(e){ /* mantém o que veio do login, se o /profile/me falhar */ }
 }
 async function logout(silent){
   try{ if(!silent) await api('/auth/logout', {method:'POST', body:{ refreshToken: state.refreshToken }}); }catch(e){}
