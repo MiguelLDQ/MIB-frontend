@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7ECFC0">
+<title>MIB — Saúde Mental</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-50..200" rel="stylesheet">
+<style>
+:root{
+  --mint:#7ECFC0; --mint-600:#63BBAA; --mint-700:#4FA694; --mint-soft:#E3F6F2; --mint-pale:#F3FAF9;
+  --ink:#173832; --text:#3C5450; --muted:#8AA29D; --border:#DEEFEB;
+  --white:#FFFFFF; --danger:#E2685C; --danger-soft:#FBEAE8; --warning:#E8B84B; --warning-soft:#FCF3E0;
+  --gold:#D8A83E; --shadow:0 4px 18px rgba(23,56,50,.07); --shadow-lg:0 12px 32px rgba(23,56,50,.14);
+  --radius:16px; --radius-sm:10px; --sidebar-w:248px; --topbar-h:64px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Roboto',system-ui,-apple-system,sans-serif; background:var(--mint-pale); color:var(--text);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24; font-size:22px; line-height:1; user-select:none;}
+h1,h2,h3,h4{color:var(--ink); margin:0; font-weight:700;}
+p{margin:0;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit; cursor:pointer;}
+input,textarea,select{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--mint-soft);border-radius:8px;}
+:focus-visible{outline:2px solid var(--mint-700); outline-offset:2px;}
+
+/* ---------- utility ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;padding:11px 18px;font-weight:600;font-size:14px;transition:.15s;white-space:nowrap;}
+.btn-primary{background:var(--mint);color:var(--ink);}
+.btn-primary:hover{background:var(--mint-600);}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--mint-pale);}
+.btn-danger{background:var(--danger-soft);color:var(--danger);}
+.btn-danger:hover{background:var(--danger);color:#fff;}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
+.btn-block{width:100%;}
+.btn-icon{padding:9px;border-radius:10px;background:transparent;color:var(--text);}
+.btn-icon:hover{background:var(--mint-soft);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+.card-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px;}
+.card-title .material-symbols-outlined{color:var(--mint-700);}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--mint-soft);color:var(--mint-700);}
+.pill-warning{background:var(--warning-soft);color:#9A7318;}
+.pill-danger{background:var(--danger-soft);color:var(--danger);}
+.pill-muted{background:var(--mint-pale);color:var(--muted);}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.row{display:flex;align-items:center;}
+.between{justify-content:space-between;}
+.gap-8{gap:8px;} .gap-12{gap:12px;} .gap-16{gap:16px;}
+.muted{color:var(--muted);font-size:13px;}
+.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
+.empty .material-symbols-outlined{font-size:38px;display:block;margin:0 auto 10px;opacity:.5;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.field input,.field textarea,.field select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:#fff;color:var(--text);transition:.15s;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--mint);outline:none;}
+.field textarea{resize:vertical;min-height:80px;}
+.hint{font-size:12px;color:var(--muted);margin-top:5px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.tabs{display:flex;gap:4px;background:var(--mint-pale);border-radius:12px;padding:4px;margin-bottom:18px;overflow-x:auto;}
+.tab{padding:9px 16px;border-radius:9px;border:none;background:transparent;color:var(--muted);font-weight:600;font-size:13.5px;white-space:nowrap;}
+.tab.active{background:#fff;color:var(--ink);box-shadow:var(--shadow);}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--mint);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;object-fit:cover;}
+.avatar-lg{width:76px;height:76px;font-size:26px;}
+.skeleton{background:linear-gradient(90deg,var(--mint-pale) 25%,var(--mint-soft) 37%,var(--mint-pale) 63%);background-size:400% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+.badge-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block;flex-shrink:0;}
+.badge-dot.online{background:#4CAF7D;box-shadow:0 0 0 3px rgba(76,175,125,.2);}
+.link-btn{background:none;border:none;color:var(--mint-700);font-weight:600;font-size:13px;padding:0;cursor:pointer;}
+
+/* ---------- auth screen ---------- */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(160deg,var(--mint) 0%,var(--mint-700) 100%);}
+.auth-card{background:#fff;border-radius:20px;box-shadow:var(--shadow-lg);padding:36px 32px;width:100%;max-width:400px;}
+.auth-logo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:26px;}
+.auth-logo .material-symbols-outlined{font-size:40px;color:var(--mint-700);background:var(--mint-soft);padding:14px;border-radius:16px;}
+.auth-logo h1{font-size:24px;letter-spacing:.5px;}
+.auth-logo .tag{font-size:12px;color:var(--muted);font-weight:600;}
+.auth-toggle{text-align:center;margin-top:18px;font-size:13.5px;color:var(--muted);}
+
+/* ---------- app shell ---------- */
+#topbar{height:var(--topbar-h);background:var(--mint);display:flex;align-items:center;gap:14px;padding:0 18px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(23,56,50,.08);}
+.topbar-logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px;color:var(--ink);}
+.topbar-logo .material-symbols-outlined{font-size:26px;}
+.hamburger{display:none;}
+.topbar-spacer{flex:1;}
+.xp-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.55);padding:6px 12px 6px 6px;border-radius:999px;}
+.xp-chip .lvl-badge{background:var(--ink);color:var(--mint);font-weight:700;font-size:11.5px;padding:3px 8px;border-radius:999px;}
+.xp-bar-mini{width:74px;height:6px;background:rgba(255,255,255,.6);border-radius:99px;overflow:hidden;}
+.xp-bar-mini > div{height:100%;background:var(--ink);border-radius:99px;}
+.notif-btn{position:relative;}
+.notif-dot{position:absolute;top:5px;right:6px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;background:rgba(255,255,255,.4);}
+.user-chip .avatar{width:32px;height:32px;font-size:12.5px;background:var(--ink);color:var(--mint);}
+.user-chip span{font-weight:600;font-size:13.5px;color:var(--ink);}
+
+#shell{display:flex;align-items:flex-start;}
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);min-height:calc(100vh - var(--topbar-h));padding:18px 12px 90px;position:sticky;top:var(--topbar-h);overflow-y:auto;max-height:calc(100vh - var(--topbar-h));}
+.nav-group-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 12px 6px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;color:var(--text);font-weight:500;font-size:14px;margin-bottom:2px;position:relative;}
+.nav-item .material-symbols-outlined{font-size:20px;color:var(--muted);}
+.nav-item:hover{background:var(--mint-pale);}
+.nav-item.active{background:var(--mint-soft);color:var(--ink);font-weight:700;}
+.nav-item.active .material-symbols-outlined{color:var(--mint-700);}
+.nav-item .nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+#sidebar-overlay{display:none;}
+
+#content{flex:1;min-width:0;padding:22px 26px 100px;max-width:1180px;margin:0 auto;width:100%;}
+.view-header{margin-bottom:18px;}
+.view-header h2{font-size:21px;display:flex;align-items:center;gap:9px;}
+.view-header h2 .material-symbols-outlined{color:var(--mint-700);font-size:24px;}
+.view-header p{color:var(--muted);font-size:13.5px;margin-top:4px;}
+
+.bottom-nav{display:none;}
+
+/* ---------- greeting / dashboard ---------- */
+.greeting-banner{background:linear-gradient(120deg,var(--mint),var(--mint-600));border-radius:var(--radius);padding:20px 22px;display:flex;align-items:center;gap:14px;color:var(--ink);margin-bottom:18px;}
+.greeting-banner .material-symbols-outlined{font-size:30px;}
+.mood-picker{display:flex;justify-content:space-between;gap:6px;}
+.mood-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;border:2px solid transparent;background:var(--mint-pale);font-size:26px;}
+.mood-opt:hover{background:var(--mint-soft);}
+.mood-opt.selected{border-color:var(--mint-700);background:var(--mint-soft);}
+.mood-opt small{font-size:10px;color:var(--muted);font-weight:600;}
+.stat-trio{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:8px;}
+.stat-trio .num{font-size:24px;font-weight:900;color:var(--ink);}
+.stat-trio .lbl{font-size:11.5px;color:var(--muted);font-weight:600;}
+.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.module-card{background:var(--mint-pale);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;transition:.15s;}
+.module-card:hover{background:var(--mint-soft);transform:translateY(-2px);}
+.module-card .material-symbols-outlined{font-size:26px;background:#fff;padding:9px;border-radius:11px;color:var(--mint-700);}
+.module-card span.lbl{font-weight:700;font-size:14px;color:var(--ink);}
+.cvv-banner{background:var(--ink);color:#fff;border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:14px;margin-top:18px;}
+.cvv-banner .material-symbols-outlined{font-size:26px;color:var(--mint);}
+.cvv-banner b{font-size:20px;}
+.xp-progress-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:4px 0 6px;}
+.xp-bar{height:10px;border-radius:99px;background:var(--mint-pale);overflow:hidden;}
+.xp-bar>div{height:100%;background:linear-gradient(90deg,var(--mint),var(--mint-700));border-radius:99px;transition:width .4s;}
+
+/* ---------- lists ---------- */
+.list-item{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--border);}
+.list-item:last-child{border-bottom:none;}
+.list-item .meta{flex:1;min-width:0;}
+.list-item .meta .title{font-weight:600;font-size:14px;color:var(--ink);}
+.list-item .meta .sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-item .actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ---------- chat ---------- */
+.chat-shell{display:flex;height:calc(100vh - var(--topbar-h) - 150px);min-height:420px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.chat-rooms{width:230px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;background:var(--mint-pale);}
+.chat-room-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;gap:10px;align-items:center;}
+.chat-room-item:hover,.chat-room-item.active{background:var(--mint-soft);}
+.chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg-row{display:flex;gap:8px;max-width:78%;}
+.msg-row.mine{align-self:flex-end;flex-direction:row-reverse;}
+.msg-bubble{background:var(--mint-pale);padding:9px 13px;border-radius:14px;font-size:13.8px;line-height:1.45;}
+.msg-row.mine .msg-bubble{background:var(--mint);color:var(--ink);}
+.msg-meta{font-size:10.5px;color:var(--muted);margin-top:3px;}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{flex:1;}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);display:inline-block;}
+.conn-dot.on{background:#4CAF7D;}
+
+/* ---------- breathing ---------- */
+.breathe-stage{display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px 10px;}
+.breathe-circle{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--mint-soft),var(--mint));display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--ink);font-weight:700;transition:transform 1s ease-in-out;box-shadow:0 0 0 10px var(--mint-pale);}
+.breathe-circle .phase{font-size:13px;letter-spacing:.05em;text-transform:uppercase;}
+.breathe-circle .secs{font-size:30px;}
+.breathe-scale-in{transform:scale(1.35);} .breathe-scale-out{transform:scale(.78);} .breathe-scale-hold{transform:scale(1.1);}
+
+/* ---------- misc widgets ---------- */
+.toast-container{position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;box-shadow:var(--shadow-lg);font-size:13.5px;opacity:0;transform:translateX(20px);transition:.25s;max-width:340px;}
+.toast.show{opacity:1;transform:translateX(0);}
+.toast-success .material-symbols-outlined{color:#7BE0A6;}
+.toast-error{background:#5C2A26;} .toast-error .material-symbols-outlined{color:#F3A79E;}
+.toast-warning .material-symbols-outlined{color:var(--warning);}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(23,56,50,.45);display:flex;align-items:center;justify-content:center;z-index:900;padding:16px;backdrop-filter:blur(2px);}
+.modal-box{background:#fff;border-radius:18px;padding:26px;position:relative;width:100%;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-close{position:absolute;top:12px;right:12px;}
+
+.cold-start-hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;display:flex;align-items:center;gap:10px;font-size:12.5px;z-index:1100;box-shadow:var(--shadow-lg);}
+.spinner{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner-lg{width:34px;height:34px;border:3px solid var(--mint-soft);border-top-color:var(--mint-700);border-radius:50%;animation:spin .8s linear infinite;margin:30px auto;}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1023px){
+  #sidebar{position:fixed;left:-260px;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));z-index:60;transition:left .22s ease;box-shadow:var(--shadow-lg);}
+  #sidebar.open{left:0;}
+  #sidebar-overlay{display:none;position:fixed;inset:var(--topbar-h) 0 0 0;background:rgba(23,56,50,.4);z-index:55;}
+  #sidebar-overlay.show{display:block;}
+  .hamburger{display:flex;}
+  .user-chip span{display:none;}
+}
+@media (max-width: 900px){
+  .grid-2{grid-template-columns:1fr;} .grid-3{grid-template-columns:1fr 1fr;}
+  .module-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width: 640px){
+  #content{padding:16px 12px 90px;}
+  .stat-trio .num{font-size:19px;}
+  .grid-3{grid-template-columns:1fr;}
+  .module-grid{grid-template-columns:repeat(2,1fr);}
+  .xp-chip span.xp-text{display:none;}
+  .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid var(--border);z-index:50;box-shadow:0 -4px 14px rgba(23,56,50,.08);}
+  .bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:10px;font-weight:600;}
+  .bottom-nav a.active{color:var(--mint-700);}
+  .bottom-nav .material-symbols-outlined{font-size:22px;}
+  #content{padding-bottom:88px;}
+  .auth-card{padding:28px 22px;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast-container"></div>
+<div id="modal-root"></div>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<script>
+'use strict';
+/* =========================================================================
+   MIB — Frontend único (HTML+CSS+JS puro), continuação do BMO.
+   Backend: https://mib-backend-7p5h.onrender.com  (Java 21 + Spring Boot 3)
+   ========================================================================= */
+
+/* ---------- CONFIG ---------- */
+const CONFIG = {
+  API_BASE: 'https://mib-backend-7p5h.onrender.com/api',
+  WS_URL:   'https://mib-backend-7p5h.onrender.com/ws',
+  CVV_PHONE: '188'
+};
+
+/* Nomes de enum do backend Java — o README não expõe o JSON exato, então
+   assumi convenções comuns (SCREAMING_SNAKE_CASE). Se o backend usar nomes
+   diferentes, ajuste só aqui. */
+const ENUMS = {
+  mood: [
+    {value:'MUITO_TRISTE', emoji:'😢', label:'Muito triste'},
+    {value:'TRISTE',       emoji:'😕', label:'Triste'},
+    {value:'NORMAL',       emoji:'😊', label:'Normal'},
+    {value:'BEM',          emoji:'😄', label:'Bem'},
+    {value:'MUITO_BEM',    emoji:'🤩', label:'Muito bem'}
+  ],
+  taskStatus: {PENDING:'Pendente', IN_PROGRESS:'Em progresso', COMPLETED:'Concluída'},
+  reportReasons: [
+    {value:'BULLYING', label:'Bullying'}, {value:'SPAM', label:'Spam'},
+    {value:'HARASSMENT', label:'Assédio'}, {value:'OFFENSIVE_CONTENT', label:'Conteúdo ofensivo'},
+    {value:'FAKE_NEWS', label:'Fake news'}, {value:'OTHER', label:'Outro'}
+  ],
+  shopItemTypes: {FRAME:'Moldura',BACKGROUND:'Fundo',ICON:'Ícone',BADGE:'Emblema',TITLE:'Título',EFFECT:'Efeito',THEME:'Tema'},
+  visibility: {PUBLIC:'Público', PRIVATE:'Privado'}
+};
+
+/* ---------- STATE (em memória — sem localStorage, ver observação no chat) ---------- */
+const state = {
+  accessToken: null, refreshToken: null, user: null,
+  route: 'login', routeParam: null, sidebarOpen: false,
+  notifUnread: 0, notifOpen: false,
+  cache: {}, // caches simples por tela
+  ws: { client: null, connected: false, subs: {} }
+};
+
+/* ---------- helpers genéricos ---------- */
+const $ = (sel, el=document) => el.querySelector(sel);
+const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+const esc = (s) => (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials = (name) => (name||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function fmtDate(d){ if(!d) return ''; const dt = new Date(d); if(isNaN(dt)) return d; return dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function fmtTime(d){ if(!d) return ''; const dt = new Date(d); if(isNaN(dt)) return ''; return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDateTime(d){ if(!d) return ''; const dt = new Date(d); if(isNaN(dt)) return d; return dt.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+function timeAgo(d){
+  if(!d) return '';
+  const s = Math.floor((Date.now() - new Date(d).getTime())/1000);
+  if(s<60) return 'agora'; if(s<3600) return Math.floor(s/60)+'min'; if(s<86400) return Math.floor(s/3600)+'h';
+  if(s<604800) return Math.floor(s/86400)+'d'; return fmtDate(d);
+}
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+function levelXpNeeded(level){ return 100 * level * level; } // 100 * N^2, Fase 3
+
+/* ---------- TOASTS ---------- */
+function toast(msg, type='info', ms=4200){
+  const box = document.createElement('div');
+  box.className = 'toast toast-'+type;
+  const icon = type==='success'?'check_circle':type==='error'?'error':type==='warning'?'warning':'info';
+  box.innerHTML = '<span class="material-symbols-outlined">'+icon+'</span><span class="toast-msg"></span>';
+  box.querySelector('.toast-msg').textContent = msg;
+  $('#toast-container').appendChild(box);
+  requestAnimationFrame(()=>box.classList.add('show'));
+  setTimeout(()=>{ box.classList.remove('show'); setTimeout(()=>box.remove(),250); }, ms);
+}
+
+/* ---------- MODAL ---------- */
+function openModal(html, opts={}){
+  const root = $('#modal-root');
+  root.innerHTML = '<div class="modal-backdrop"><div class="modal-box" style="max-width:'+(opts.width||'440px')+'">'+
+    '<button class="modal-close btn-icon" data-close-modal aria-label="Fechar"><span class="material-symbols-outlined">close</span></button>'+
+    html + '</div></div>';
+  root.querySelector('.modal-backdrop').addEventListener('click', (e)=>{ if(e.target.classList.contains('modal-backdrop')) closeModal(); });
+  root.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+  document.addEventListener('keydown', escCloseModal);
+}
+function escCloseModal(e){ if(e.key==='Escape') closeModal(); }
+function closeModal(){ $('#modal-root').innerHTML=''; document.removeEventListener('keydown', escCloseModal); }
+function confirmModal(title, msg, onConfirm, confirmLabel='Confirmar'){
+  openModal(
+    '<h3 style="margin-bottom:8px;padding-right:24px;">'+esc(title)+'</h3>'+
+    '<p class="muted" style="margin-bottom:20px;line-height:1.5;">'+esc(msg)+'</p>'+
+    '<div class="row gap-8" style="justify-content:flex-end;">'+
+      '<button class="btn btn-ghost" data-close-modal>Cancelar</button>'+
+      '<button class="btn btn-danger" id="modal-confirm-btn">'+esc(confirmLabel)+'</button>'+
+    '</div>'
+  );
+  $('#modal-confirm-btn').addEventListener('click', ()=>{ closeModal(); onConfirm(); });
+}
+
+/* ---------- API ---------- */
+let refreshPromise = null;
+async function apiRaw(path, opts={}){
+  const headers = Object.assign({}, opts.headers||{});
+  const isForm = opts.body instanceof FormData;
+  if(!isForm && opts.body) headers['Content-Type'] = 'application/json';
+  if(state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
+  const res = await fetch(CONFIG.API_BASE + path, {
+    method: opts.method || 'GET',
+    headers,
+    body: isForm ? opts.body : (opts.body ? JSON.stringify(opts.body) : undefined)
+  });
+  return res;
+}
+async function tryRefresh(){
+  if(!state.refreshToken) return false;
+  if(refreshPromise) return refreshPromise;
+  refreshPromise = (async ()=>{
+    try{
+      const res = await fetch(CONFIG.API_BASE + '/auth/refresh', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ refreshToken: state.refreshToken })
+      });
+      if(!res.ok) return false;
+      const data = await res.json();
+      applyAuthPayload(data, {keepUser:true});
+      return true;
+    }catch(e){ return false; } finally{ refreshPromise = null; }
+  })();
+  return refreshPromise;
+}
+/**
+ * api() principal — trata: acordar servidor free-tier (Render), 401 com
+ * retry via refresh token, parsing de erro amigável, e devolve JSON (ou null se 204).
+ */
+async function api(path, opts={}){
+  const wake = renderColdStartHintIfNeeded();
+  let res;
+  try{
+    res = await apiRaw(path, opts);
+  }catch(networkErr){
+    hideColdStartHint(wake);
+    throw new ApiError('Não foi possível conectar ao servidor. O backend pode estar iniciando (Render free tier) — tente novamente em alguns segundos.', 0);
+  }
+  hideColdStartHint(wake);
+  if(res.status === 401 && state.refreshToken && !opts._retried){
+    const ok = await tryRefresh();
+    if(ok) return api(path, Object.assign({}, opts, {_retried:true}));
+    logout(true);
+    throw new ApiError('Sessão expirada. Faça login novamente.', 401);
+  }
+  if(!res.ok){
+    let msg = 'Erro ao comunicar com o servidor ('+res.status+').';
+    try{ const errData = await res.json(); msg = errData.message || errData.error || msg; }catch(e){}
+    throw new ApiError(msg, res.status);
+  }
+  if(res.status === 204) return null;
+  try{ return await res.json(); }catch(e){ return null; }
+}
+class ApiError extends Error{ constructor(msg, status){ super(msg); this.status = status; } }
+let coldStartTimer = null;
+function renderColdStartHintIfNeeded(){
+  const el = document.createElement('div');
+  coldStartTimer = setTimeout(()=>{
+    el.className = 'cold-start-hint';
+    el.innerHTML = '<div class="spinner"></div><span>Acordando o servidor (Render free tier pode levar até 1 min)…</span>';
+    document.body.appendChild(el);
+  }, 2500);
+  return el;
+}
+function hideColdStartHint(el){ clearTimeout(coldStartTimer); if(el && el.parentNode) el.remove(); }
+
+function applyAuthPayload(data, opts={}){
+  state.accessToken = data.accessToken || data.access_token || data.token || state.accessToken;
+  state.refreshToken = data.refreshToken || data.refresh_token || state.refreshToken;
+  if(!opts.keepUser && data.user) state.user = normalizeUser(data.user);
+  else if(data.user) state.user = normalizeUser(data.user);
+}
+function normalizeUser(u){
+  if(!u) return u;
+  u.displayName = u.displayName || u.name || u.username;
+  u.roles = u.roles || u.authorities || [];
+  return u;
+}
+function isAdmin(){ return !!(state.user && state.user.roles && state.user.roles.some(r => String(r).toUpperCase().includes('ADMIN'))); }
+
+/* ---------- ROUTER ---------- */
+const ROUTES = [
+  {id:'dashboard', label:'Início', icon:'home', group:'Principal'},
+  {id:'ai', label:'MIB IA', icon:'smart_toy', group:'Principal'},
+  {id:'chat', label:'Chat', icon:'chat', group:'Principal'},
+  {id:'friends', label:'Amigos', icon:'group', group:'Principal'},
+  {id:'mood', label:'Humor', icon:'mood', group:'Bem-estar'},
+  {id:'breathing', label:'Respiração', icon:'air', group:'Bem-estar'},
+  {id:'tasks', label:'Tarefas & Missões', icon:'task_alt', group:'Bem-estar'},
+  {id:'anonymous', label:'Estrelas Pontilhadas', icon:'stars', group:'Comunidade'},
+  {id:'interests', label:'Interesses & Salas', icon:'interests', group:'Comunidade'},
+  {id:'notifications', label:'Notificações', icon:'notifications', group:'Comunidade', badgeKey:'notifUnread'},
+  {id:'achievements', label:'Conquistas', icon:'emoji_events', group:'Progresso'},
+  {id:'shop', label:'Loja & Inventário', icon:'storefront', group:'Progresso'},
+  {id:'reports', label:'Relatórios', icon:'insights', group:'Progresso'},
+  {id:'profile', label:'Perfil', icon:'person', group:'Conta'},
+  {id:'admin', label:'Painel Admin', icon:'shield_person', group:'Admin', adminOnly:true}
+];
+const BOTTOM_NAV = ['dashboard','chat','ai','notifications','profile'];
+
+function navigate(routeId, param=null){
+  state.route = routeId; state.routeParam = param; state.sidebarOpen = false;
+  window.scrollTo(0,0);
+  renderRoot();
+}
+
+/* ---------- AUTH FLOWS ---------- */
+async function doLogin(identifier, password, btn){
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  try{
+    const data = await api('/auth/login', {method:'POST', body:{ identifier, email: identifier, username: identifier, password }});
+    applyAuthPayload(data);
+    if(!state.user){ await fetchMe(); }
+    toast('Bem-vindo de volta, '+ (state.user?.displayName||'') +'!', 'success');
+    navigate('dashboard');
+    connectSocket();
+    refreshNotifCount();
+  }catch(e){
+    toast(e.message || 'Não foi possível entrar.', 'error');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+async function doRegister(name, email, password, btn){
+  btn.disabled = true; btn.textContent = 'Cadastrando...';
+  try{
+    const data = await api('/auth/register', {method:'POST', body:{ name, displayName:name, username:name, email, password }});
+    if(data && (data.accessToken || data.access_token)){
+      applyAuthPayload(data);
+      if(!state.user) await fetchMe();
+      toast('Conta criada! Bem-vindo ao MIB.', 'success');
+      navigate('dashboard'); connectSocket(); refreshNotifCount();
+    }else{
+      toast('Conta criada! Faça login para continuar.', 'success');
+      state.route = 'login'; renderRoot();
+    }
+  }catch(e){
+    toast(e.message || 'Não foi possível criar a conta.', 'error');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Cadastrar';
+  }
+}
+async function fetchMe(){
+  try{ const me = await api('/profile/me'); state.user = normalizeUser(me); }catch(e){ /* ignore */ }
+}
+async function logout(silent){
+  try{ if(!silent) await api('/auth/logout', {method:'POST', body:{ refreshToken: state.refreshToken }}); }catch(e){}
+  disconnectSocket();
+  state.accessToken = null; state.refreshToken = null; state.user = null; state.route = 'login'; state.cache = {};
+  renderRoot();
+  if(!silent) toast('Você saiu da sua conta.', 'info');
+}
+
+/* ---------- ROOT RENDER ---------- */
+function renderRoot(){
+  const root = $('#root');
+  if(!state.user){
+    root.innerHTML = renderAuthScreen();
+    wireAuthScreen();
+    return;
+  }
+  root.innerHTML = renderAppShell();
+  wireAppShell();
+}
+
+/* ---------- AUTH SCREEN ---------- */
+let authMode = 'login';
+function renderAuthScreen(){
+  const isLogin = authMode === 'login';
+  return '<div class="auth-wrap"><div class="auth-card">'+
+    '<div class="auth-logo"><span class="material-symbols-outlined">psychology</span><h1>MIB</h1><span class="tag">evolução do BMO · saúde mental &amp; comunidade</span></div>'+
+    (isLogin ? renderLoginForm() : renderRegisterForm()) +
+    '<div class="auth-toggle">'+
+      (isLogin ? 'Não tem conta? <button class="link-btn" id="to-register">Cadastre-se</button>'
+                : 'Já tem conta? <button class="link-btn" id="to-login">Faça login</button>') +
+    '</div></div></div>';
+}
+function renderLoginForm(){
+  return '<h2 style="text-align:center;margin-bottom:18px;font-size:18px;">Bem-vindo de volta</h2>'+
+  '<form id="login-form">'+
+    '<div class="field"><label>Email ou usuário</label><input type="text" name="identifier" required autocomplete="username"></div>'+
+    '<div class="field"><label>Senha</label><input type="password" name="password" required autocomplete="current-password"></div>'+
+    '<button class="btn btn-primary btn-block" type="submit">Entrar</button>'+
+  '</form>';
+}
+function renderRegisterForm(){
+  return '<h2 style="text-align:center;margin-bottom:18px;font-size:18px;">Crie sua conta</h2>'+
+  '<form id="register-form">'+
+    '<div class="field"><label>Nome / apelido</label><input type="text" name="name" required autocomplete="name"></div>'+
+    '<div class="field"><label>Email</label><input type="email" name="email" required autocomplete="email"></div>'+
+    '<div class="field"><label>Senha</label><input type="password" name="password" required minlength="8" autocomplete="new-password">'+
+      '<div class="hint">Mínimo 8 caracteres, com letras e números.</div></div>'+
+    '<button class="btn btn-primary btn-block" type="submit">Cadastrar</button>'+
+  '</form>';
+}
+function wireAuthScreen(){
+  const toReg = $('#to-register'), toLog = $('#to-login');
+  if(toReg) toReg.addEventListener('click', ()=>{ authMode='register'; renderRoot(); });
+  if(toLog) toLog.addEventListener('click', ()=>{ authMode='login'; renderRoot(); });
+  const lf = $('#login-form');
+  if(lf) lf.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(lf);
+    doLogin(fd.get('identifier').trim(), fd.get('password'), lf.querySelector('button'));
+  });
+  const rf = $('#register-form');
+  if(rf) rf.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(rf);
+    doRegister(fd.get('name').trim(), fd.get('email').trim(), fd.get('password'), rf.querySelector('button'));
+  });
+}
+
+/* ---------- APP SHELL ---------- */
+function renderAppShell(){
+  const u = state.user || {};
+  const level = u.level ?? u.currentLevel ?? 1;
+  const totalXp = u.totalXp ?? u.xp ?? 0;
+  const xpNeeded = levelXpNeeded(level);
+  const prevFloor = level>1 ? levelXpNeeded(level-1) : 0;
+  const pct = Math.max(3, Math.min(100, Math.round(((totalXp-prevFloor)/(xpNeeded-prevFloor||1))*100)));
+
+  return ''+
+  '<div id="topbar">'+
+    '<button class="btn-icon hamburger" id="hamburger-btn" aria-label="Menu"><span class="material-symbols-outlined">menu</span></button>'+
+    '<div class="topbar-logo"><span class="material-symbols-outlined">psychology</span> MIB</div>'+
+    '<div class="topbar-spacer"></div>'+
+    '<div class="xp-chip" title="Nível '+level+' — '+totalXp+' XP">'+
+      '<span class="lvl-badge">Nv '+level+'</span>'+
+      '<div class="xp-bar-mini"><div style="width:'+pct+'%"></div></div>'+
+      '<span class="xp-text muted" style="font-size:11px;">'+totalXp+' XP</span>'+
+    '</div>'+
+    '<button class="btn-icon notif-btn" id="notif-btn" aria-label="Notificações"><span class="material-symbols-outlined">notifications</span>'+
+      (state.notifUnread>0 ? '<span class="notif-dot">'+(state.notifUnread>99?'99+':state.notifUnread)+'</span>' : '')+
+    '</button>'+
+    '<div class="user-chip" id="user-chip-btn"><div class="avatar">'+esc(initials(u.displayName))+'</div><span>'+esc(u.displayName||'')+'</span></div>'+
+  '</div>'+
+  '<div id="sidebar-overlay"></div>'+
+  '<div id="shell">'+
+    renderSidebar()+
+    '<main id="content">'+renderView()+'</main>'+
+  '</div>'+
+  renderBottomNav();
+}
+function renderSidebar(){
+  const groups = {};
+  ROUTES.forEach(r=>{ if(r.adminOnly && !isAdmin()) return; (groups[r.group] = groups[r.group]||[]).push(r); });
+  let html = '<aside id="sidebar'+(state.sidebarOpen?' open':'')+'">';
+  Object.keys(groups).forEach(g=>{
+    html += '<div class="nav-group-label">'+esc(g)+'</div>';
+    groups[g].forEach(r=>{
+      const badge = r.badgeKey && state[r.badgeKey] > 0 ? '<span class="nav-badge">'+(state[r.badgeKey]>99?'99+':state[r.badgeKey])+'</span>' : '';
+      html += '<a href="#" class="nav-item'+(state.route===r.id?' active':'')+'" data-nav="'+r.id+'"><span class="material-symbols-outlined">'+r.icon+'</span>'+esc(r.label)+badge+'</a>';
+    });
+  });
+  html += '<div class="nav-group-label">&nbsp;</div><a href="#" class="nav-item" id="logout-btn"><span class="material-symbols-outlined">logout</span>Sair</a>';
+  html += '</aside>';
+  return html;
+}
+function renderBottomNav(){
+  return '<nav class="bottom-nav">'+ BOTTOM_NAV.map(id=>{
+    const r = ROUTES.find(x=>x.id===id);
+    return '<a href="#" data-nav="'+id+'" class="'+(state.route===id?'active':'')+'"><span class="material-symbols-outlined">'+r.icon+'</span>'+r.label.split(' ')[0]+'</a>';
+  }).join('') + '</nav>';
+}
+function wireAppShell(){
+  const hb = $('#hamburger-btn');
+  if(hb) hb.addEventListener('click', ()=>{ state.sidebarOpen = !state.sidebarOpen; $('#sidebar').classList.toggle('open'); $('#sidebar-overlay').classList.toggle('show'); });
+  const ov = $('#sidebar-overlay');
+  if(ov) ov.addEventListener('click', ()=>{ state.sidebarOpen=false; $('#sidebar').classList.remove('open'); ov.classList.remove('show'); });
+  const lo = $('#logout-btn'); if(lo) lo.addEventListener('click', (e)=>{ e.preventDefault(); confirmModal('Sair da conta', 'Tem certeza que deseja sair?', ()=>logout(), 'Sair'); });
+  const nb = $('#notif-btn'); if(nb) nb.addEventListener('click', openNotifDropdown);
+  const uc = $('#user-chip-btn'); if(uc) uc.addEventListener('click', ()=>navigate('profile'));
+  wireCurrentView();
+}
+function renderView(){
+  try{
+    switch(state.route){
+      case 'dashboard': return ViewDashboard();
+      case 'ai': return ViewAI();
+      case 'chat': return ViewChat();
+      case 'friends': return ViewFriends();
+      case 'mood': return ViewMood();
+      case 'breathing': return ViewBreathing();
+      case 'tasks': return ViewTasks();
+      case 'anonymous': return ViewAnonymous();
+      case 'interests': return ViewInterests();
+      case 'notifications': return ViewNotifications();
+      case 'achievements': return ViewAchievements();
+      case 'shop': return ViewShop();
+      case 'reports': return ViewReports();
+      case 'profile': return ViewProfile();
+      case 'admin': return isAdmin() ? ViewAdmin() : '<div class="empty">Acesso restrito.</div>';
+      default: return ViewDashboard();
+    }
+  }catch(err){
+    console.error(err);
+    return '<div class="empty"><span class="material-symbols-outlined">error</span>Algo deu errado ao carregar esta tela.</div>';
+  }
+}
+function wireCurrentView(){
+  const fn = window['wire_' + state.route];
+  if(typeof fn === 'function') fn();
+}
+function rerenderContent(){ const c = $('#content'); if(c){ c.innerHTML = renderView(); wireCurrentView(); } }
+
+/* ---------- generic async loader into a container ---------- */
+async function loadInto(id, fetcher, renderer, afterRender){
+  try{
+    const data = await fetcher();
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = renderer(data);
+    if(typeof afterRender === 'function') afterRender(data);
+  }catch(e){
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '<div class="empty"><span class="material-symbols-outlined">error</span>'+esc(e.message||'Erro ao carregar.')+'</div>';
+  }
+}
+const SPIN = '<div class="spinner-lg"></div>';
+
+/* =========================================================
+   VIEW: DASHBOARD
+   ========================================================= */
+function ViewDashboard(){
+  const u = state.user||{};
+  return ''+
+  '<div class="greeting-banner"><span class="material-symbols-outlined">favorite</span><div><h3 style="color:var(--ink);">Olá de volta, '+esc(u.displayName||'')+'!</h3><p style="font-size:13px;opacity:.85;">Como você está se sentindo hoje?'+(u.currentLoginStreak?' · streak de '+u.currentLoginStreak+' dias 🔥':'')+'</p></div></div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">mood</span>Humor de hoje</div><div id="dash-mood">'+SPIN+'</div></div>'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">task_alt</span>Minhas Tarefas</div><div id="dash-tasks">'+SPIN+'</div></div>'+
+  '</div>'+
+  '<div class="card" style="margin-top:16px;"><div class="card-title"><span class="material-symbols-outlined">military_tech</span>Nível &amp; Missões diárias</div><div id="dash-xp">'+SPIN+'</div></div>'+
+  '<div style="margin-top:20px;"><div class="card-title" style="margin-bottom:12px;"><span class="material-symbols-outlined">apps</span>Módulos</div>'+
+  '<div class="module-grid">'+
+    modCard('smart_toy','MIB IA','ai')+ modCard('chat','Chat','chat')+ modCard('stars','Estrelas Pontilhadas','anonymous')+
+    modCard('air','Respiração','breathing')+ modCard('group','Amigos','friends')+ modCard('storefront','Loja','shop')+
+  '</div></div>'+
+  '<div class="cvv-banner"><span class="material-symbols-outlined">support_agent</span><div><div style="font-size:12.5px;opacity:.85;">Precisa de ajuda? Centro de Valorização da Vida</div><b>188</b></div></div>';
+}
+function modCard(icon,label,route){
+  return '<a href="#" class="module-card" data-nav="'+route+'"><span class="material-symbols-outlined">'+icon+'</span><span class="lbl">'+esc(label)+'</span></a>';
+}
+function wire_dashboard(){
+  loadInto('dash-mood', ()=>api('/mood/today').catch(()=>null), (mood)=>{
+    const sel = mood ? mood.level : null;
+    return '<div class="mood-picker">'+ENUMS.mood.map(m=>
+      '<button class="mood-opt'+(sel===m.value?' selected':'')+'" data-mood="'+m.value+'">'+m.emoji+'<small>'+m.label+'</small></button>'
+    ).join('')+'</div>'+(sel?'<p class="hint" style="margin-top:10px;">Você já registrou seu humor hoje — clique para atualizar.</p>':'');
+  });
+  const moodC = $('#dash-mood');
+  if(moodC) moodC.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-mood]'); if(!btn) return;
+    try{
+      await api('/mood', {method:'POST', body:{level: btn.getAttribute('data-mood')}});
+      toast('Humor registrado!','success');
+      loadInto('dash-mood', ()=>api('/mood/today').catch(()=>null), (mood)=>{
+        const sel = mood?mood.level:null;
+        return '<div class="mood-picker">'+ENUMS.mood.map(m=>'<button class="mood-opt'+(sel===m.value?' selected':'')+'" data-mood="'+m.value+'">'+m.emoji+'<small>'+m.label+'</small></button>').join('')+'</div>';
+      });
+    }catch(err){ toast(err.message,'error'); }
+  });
+  loadInto('dash-tasks', ()=>api('/tasks'), (tasks)=>{
+    tasks = Array.isArray(tasks)?tasks:(tasks?.content||[]);
+    const c = {PENDING:0,IN_PROGRESS:0,COMPLETED:0};
+    tasks.forEach(t=>{ if(c[t.status]!==undefined) c[t.status]++; });
+    return '<div class="stat-trio"><div><div class="num">'+c.PENDING+'</div><div class="lbl">Pendentes</div></div><div><div class="num">'+c.IN_PROGRESS+'</div><div class="lbl">Em progresso</div></div><div><div class="num">'+c.COMPLETED+'</div><div class="lbl">Concluídas</div></div></div>'+
+    '<button class="btn btn-primary btn-block" style="margin-top:14px;" data-nav="tasks">Ver todas →</button>';
+  });
+  loadInto('dash-xp', ()=>api('/missions/daily').catch(()=>[]), (missions)=>{
+    missions = Array.isArray(missions)?missions:(missions?.content||[]);
+    const done = missions.filter(m=>m.completed||m.status==='COMPLETED').length;
+    const u = state.user||{};
+    return '<div class="row between" style="margin-bottom:10px;"><span class="muted">Missões de hoje</span><b>'+done+'/'+missions.length+'</b></div>'+
+    '<div class="xp-bar"><div style="width:'+(missions.length?Math.round(done/missions.length*100):0)+'%"></div></div>'+
+    '<button class="btn btn-ghost btn-block" style="margin-top:14px;" data-nav="tasks">Ver missões diárias →</button>';
+  });
+}
+
+/* =========================================================
+   VIEW: MIB IA
+   ========================================================= */
+function ViewAI(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">smart_toy</span>MIB IA</h2><p>Converse com a IA de apoio emocional do MIB. Ela não substitui acompanhamento profissional.</p></div>'+
+  '<div class="chat-shell"><div class="chat-main" style="width:100%;">'+
+    '<div class="chat-messages" id="ai-messages">'+SPIN+'</div>'+
+    '<div class="chat-input-row"><input type="text" id="ai-input" placeholder="Escreva como você está se sentindo..." maxlength="1000">'+
+      '<button class="btn btn-primary" id="ai-send"><span class="material-symbols-outlined">send</span></button>'+
+      '<button class="btn-icon" id="ai-clear" title="Apagar conversa"><span class="material-symbols-outlined">delete</span></button>'+
+    '</div>'+
+  '</div></div>';
+}
+function aiBubble(m){
+  const mine = m.role==='USER' || m.sender==='USER' || m.fromUser===true;
+  const text = m.content || m.message || m.text || '';
+  return '<div class="msg-row'+(mine?' mine':'')+'"><div><div class="msg-bubble">'+esc(text).replace(/\n/g,'<br>')+'</div><div class="msg-meta">'+(mine?'Você':'MIB')+' · '+fmtTime(m.createdAt||m.timestamp)+'</div></div></div>';
+}
+function wire_ai(){
+  loadInto('ai-messages', async ()=>{
+    const data = await api('/ai/conversation').catch(()=>({content:[]}));
+    return Array.isArray(data) ? data : (data?.content || []);
+  }, (msgs)=>{
+    if(!msgs.length) return '<div class="empty"><span class="material-symbols-outlined">smart_toy</span>Olá! Sou a IA do MIB. Como você está se sentindo hoje?</div>';
+    return msgs.map(aiBubble).join('');
+  });
+  const send = async ()=>{
+    const input = $('#ai-input'); const text = input.value.trim(); if(!text) return;
+    input.value=''; const box = $('#ai-messages');
+    if(box) box.insertAdjacentHTML('beforeend', aiBubble({role:'USER', content:text, createdAt:new Date()}));
+    if(box) box.scrollTop = box.scrollHeight;
+    try{
+      const reply = await api('/ai/conversation/messages', {method:'POST', body:{content:text, message:text}});
+      const replyText = reply?.content || reply?.message || reply?.reply || '';
+      if(box) box.insertAdjacentHTML('beforeend', aiBubble({role:'AI', content:replyText, createdAt:new Date()}));
+      if(box) box.scrollTop = box.scrollHeight;
+    }catch(e){
+      toast(e.status===429 ? 'Limite de mensagens por hora atingido. Tente novamente mais tarde.' : (e.message||'Erro ao enviar mensagem.'), 'error');
+    }
+  };
+  const sendBtn = $('#ai-send'); if(sendBtn) sendBtn.addEventListener('click', send);
+  const input = $('#ai-input'); if(input) input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') send(); });
+  const clearBtn = $('#ai-clear'); if(clearBtn) clearBtn.addEventListener('click', ()=>{
+    confirmModal('Apagar conversa', 'Isso apaga todo o histórico de conversa com a IA. Deseja continuar?', async ()=>{
+      try{ await api('/ai/conversation', {method:'DELETE'}); toast('Conversa apagada.','success'); rerenderContent(); }catch(e){ toast(e.message,'error'); }
+    }, 'Apagar');
+  });
+}
+
+/* =========================================================
+   VIEW: CHAT (Geral / Privado / Salas temáticas) — STOMP+SockJS com fallback REST
+   ========================================================= */
+const chatState = { tab:'general', currentRoomId:null, currentRoomLabel:'', friendsCache:null, themeCache:null };
+function ViewChat(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">chat</span>Chat <span class="conn-dot'+(state.ws.connected?' on':'')+'" id="conn-dot" title="'+(state.ws.connected?'Conectado em tempo real':'Modo offline (REST)')+'"></span></h2><p>Sala geral, conversas privadas e salas temáticas.</p></div>'+
+  '<div class="tabs">'+
+    '<button class="tab'+(chatState.tab==='general'?' active':'')+'" data-chat-tab="general">Geral</button>'+
+    '<button class="tab'+(chatState.tab==='direct'?' active':'')+'" data-chat-tab="direct">Privado</button>'+
+    '<button class="tab'+(chatState.tab==='theme'?' active':'')+'" data-chat-tab="theme">Salas temáticas</button>'+
+  '</div>'+
+  '<div class="chat-shell">'+
+    (chatState.tab==='general' ? '<div class="chat-main" style="width:100%;">'+chatMessagesArea()+'</div>' :
+      '<div class="chat-rooms" id="chat-room-list">'+SPIN+'</div><div class="chat-main">'+chatMessagesArea()+'</div>')+
+  '</div>';
+}
+function chatMessagesArea(){
+  return '<div class="chat-messages" id="chat-messages">'+(chatState.tab==='general'?SPIN:'<div class="empty"><span class="material-symbols-outlined">forum</span>Selecione uma sala para começar</div>')+'</div>'+
+  '<div class="chat-input-row"><input type="text" id="chat-input" placeholder="Digite sua mensagem..." '+((chatState.tab!=='general' && !chatState.currentRoomId)?'disabled':'')+' maxlength="1000">'+
+    '<button class="btn btn-primary" id="chat-send" '+((chatState.tab!=='general' && !chatState.currentRoomId)?'disabled':'')+'><span class="material-symbols-outlined">send</span></button></div>';
+}
+function chatBubble(m){
+  const mine = String(m.senderId||m.userId||m.authorId) === String(state.user?.id);
+  const author = mine ? 'Você' : (m.senderName||m.authorName||m.username||'—');
+  return '<div class="msg-row'+(mine?' mine':'')+'"><div>'+(mine?'':'<div class="msg-meta">'+esc(author)+'</div>')+'<div class="msg-bubble">'+esc(m.content||m.message||'').replace(/\n/g,'<br>')+'</div><div class="msg-meta">'+fmtTime(m.createdAt||m.timestamp)+'</div></div></div>';
+}
+async function openGeneralRoom(){
+  try{
+    const room = await api('/chat/general/room');
+    chatState.currentRoomId = room?.id || room?.roomId || room;
+    await loadRoomMessages(chatState.currentRoomId);
+    subscribeRoom(chatState.currentRoomId);
+  }catch(e){
+    const el = $('#chat-messages'); if(el) el.innerHTML = '<div class="empty"><span class="material-symbols-outlined">error</span>'+esc(e.message)+'</div>';
+  }
+}
+async function loadRoomMessages(roomId){
+  const el = $('#chat-messages'); if(el) el.innerHTML = SPIN;
+  try{
+    const data = await api('/chat/rooms/'+roomId+'/messages');
+    const msgs = Array.isArray(data)?data:(data?.content||[]);
+    if(el) el.innerHTML = msgs.length ? msgs.map(chatBubble).join('') : '<div class="empty"><span class="material-symbols-outlined">forum</span>Nenhuma mensagem ainda. Diga oi!</div>';
+    if(el) el.scrollTop = el.scrollHeight;
+  }catch(e){
+    if(el) el.innerHTML = '<div class="empty"><span class="material-symbols-outlined">error</span>'+esc(e.message)+'</div>';
+  }
+}
+function subscribeRoom(roomId){
+  if(!state.ws.client || !state.ws.connected) return;
+  Object.keys(state.ws.subs).filter(k=>k.startsWith('room:')).forEach(k=>{ try{state.ws.subs[k].unsubscribe();}catch(e){} delete state.ws.subs[k]; });
+  const key = 'room:'+roomId;
+  state.ws.subs[key] = state.ws.client.subscribe('/topic/chat.room.'+roomId, (frame)=>{
+    try{
+      const m = JSON.parse(frame.body);
+      const el = $('#chat-messages');
+      if(el){ el.insertAdjacentHTML('beforeend', chatBubble(m)); el.scrollTop = el.scrollHeight; }
+    }catch(e){}
+  });
+}
+function wire_chat(){
+  $$('[data-chat-tab]').forEach(t=>t.addEventListener('click', ()=>{
+    chatState.tab = t.getAttribute('data-chat-tab'); chatState.currentRoomId=null; rerenderContent();
+    if(chatState.tab==='general') openGeneralRoom();
+    else if(chatState.tab==='direct') loadDirectRoomList();
+    else loadThemeRoomList();
+  }));
+  if(chatState.tab==='general') openGeneralRoom();
+  else if(chatState.tab==='direct') loadDirectRoomList();
+  else loadThemeRoomList();
+
+  const sendFn = async ()=>{
+    const input = $('#chat-input'); const text = input.value.trim();
+    if(!text || !chatState.currentRoomId) return;
+    input.value = '';
+    try{
+      if(state.ws.connected && state.ws.client){
+        state.ws.client.publish({destination:'/app/chat.room/'+chatState.currentRoomId, body: JSON.stringify({content:text})});
+        // otimista: mostra local, servidor confirma via broadcast (pode duplicar se o backend ecoar pro remetente — aceitável)
+      }else{
+        const m = await api('/chat/rooms/'+chatState.currentRoomId+'/messages', {method:'POST', body:{content:text}});
+        const el = $('#chat-messages'); if(el){ el.insertAdjacentHTML('beforeend', chatBubble(m||{content:text,senderId:state.user.id,createdAt:new Date()})); el.scrollTop = el.scrollHeight; }
+      }
+    }catch(e){ toast(e.message,'error'); }
+  };
+  const sb = $('#chat-send'); if(sb) sb.addEventListener('click', sendFn);
+  const ci = $('#chat-input'); if(ci) ci.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendFn(); });
+}
+async function loadDirectRoomList(){
+  const el = $('#chat-room-list'); if(!el) return;
+  try{
+    const list = await api('/chat/direct');
+    const rooms = Array.isArray(list)?list:(list?.content||[]);
+    el.innerHTML = rooms.length ? rooms.map(r=>{
+      const name = r.friendDisplayName || r.friendName || r.username || 'Conversa';
+      return '<div class="chat-room-item" data-open-direct="'+(r.friendUserId||r.userId||r.id)+'" data-room-label="'+esc(name)+'"><div class="avatar" style="width:32px;height:32px;font-size:12px;">'+esc(initials(name))+'</div><div class="meta"><div class="title" style="font-size:13px;">'+esc(name)+'</div></div></div>';
+    }).join('') : '<div class="empty" style="padding:20px 10px;">Nenhuma conversa ainda.<br><button class="link-btn" data-nav="friends">Ver amigos</button></div>';
+    $$('[data-open-direct]', el).forEach(item=>item.addEventListener('click', async ()=>{
+      $$('.chat-room-item', el).forEach(x=>x.classList.remove('active')); item.classList.add('active');
+      try{
+        const room = await api('/chat/direct/'+item.getAttribute('data-open-direct'));
+        chatState.currentRoomId = room?.id || room?.roomId;
+        const ci = $('#chat-input'); if(ci) ci.disabled=false; const sb=$('#chat-send'); if(sb) sb.disabled=false;
+        await loadRoomMessages(chatState.currentRoomId); subscribeRoom(chatState.currentRoomId);
+      }catch(e){ toast(e.message,'error'); }
+    }));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+async function loadThemeRoomList(){
+  const el = $('#chat-room-list'); if(!el) return;
+  try{
+    const interests = await api('/interests');
+    const list = Array.isArray(interests)?interests:(interests?.content||[]);
+    const withRoom = list.filter(i=>i.roomId || i.chatRoomId || i.room);
+    el.innerHTML = withRoom.length ? withRoom.map(i=>{
+      const rid = i.roomId || i.chatRoomId || (i.room && i.room.id);
+      return '<div class="chat-room-item" data-open-room="'+rid+'"><span class="material-symbols-outlined" style="font-size:18px;color:var(--mint-700);">tag</span><div class="meta"><div class="title" style="font-size:13px;">'+esc(i.name||i.label)+'</div></div></div>';
+    }).join('') : '<div class="empty" style="padding:20px 10px;">Nenhuma sala temática vinculada aos seus interesses ainda.<br><button class="link-btn" data-nav="interests">Escolher interesses</button></div>';
+    $$('[data-open-room]', el).forEach(item=>item.addEventListener('click', async ()=>{
+      $$('.chat-room-item', el).forEach(x=>x.classList.remove('active')); item.classList.add('active');
+      chatState.currentRoomId = item.getAttribute('data-open-room');
+      const ci = $('#chat-input'); if(ci) ci.disabled=false; const sb=$('#chat-send'); if(sb) sb.disabled=false;
+      await loadRoomMessages(chatState.currentRoomId); subscribeRoom(chatState.currentRoomId);
+    }));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+
+/* =========================================================
+   VIEW: FRIENDS
+   ========================================================= */
+const friendsState = { tab:'list' };
+function ViewFriends(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">group</span>Amigos</h2><p>Busque pessoas, gerencie solicitações e veja recomendações.</p></div>'+
+  '<div class="field"><input type="text" id="friend-search" placeholder="Buscar por username ou nome..."></div>'+
+  '<div id="friend-search-results"></div>'+
+  '<div class="tabs" style="margin-top:18px;">'+
+    '<button class="tab'+(friendsState.tab==='list'?' active':'')+'" data-friend-tab="list">Meus amigos</button>'+
+    '<button class="tab'+(friendsState.tab==='incoming'?' active':'')+'" data-friend-tab="incoming">Recebidas</button>'+
+    '<button class="tab'+(friendsState.tab==='outgoing'?' active':'')+'" data-friend-tab="outgoing">Enviadas</button>'+
+    '<button class="tab'+(friendsState.tab==='reco'?' active':'')+'" data-friend-tab="reco">Sugestões</button>'+
+  '</div>'+
+  '<div class="card" id="friends-panel">'+SPIN+'</div>';
+}
+function friendRow(f, actionsHtml){
+  const name = f.displayName || f.name || f.username || f.friendDisplayName;
+  return '<div class="list-item"><div class="avatar">'+esc(initials(name))+'</div>'+
+    '<div class="meta"><div class="title">'+esc(name)+' '+(f.online!==undefined?'<span class="badge-dot'+(f.online?' online':'')+'" style="margin-left:4px;"></span>':'')+'</div>'+
+    '<div class="sub">'+(f.online ? 'Online agora' : (f.lastSeen ? 'Visto '+timeAgo(f.lastSeen) : (f.mutualInterests? f.mutualInterests+' interesses em comum':'@'+esc(f.username||''))))+'</div></div>'+
+    '<div class="actions">'+actionsHtml+'</div></div>';
+}
+function wire_friends(){
+  const search = $('#friend-search');
+  const doSearch = debounce(async ()=>{
+    const q = search.value.trim(); const box = $('#friend-search-results');
+    if(!q){ box.innerHTML=''; return; }
+    box.innerHTML = '<div class="card" style="margin-top:10px;">'+SPIN+'</div>';
+    try{
+      const data = await api('/users/search?query='+encodeURIComponent(q));
+      const users = Array.isArray(data)?data:(data?.content||[]);
+      box.innerHTML = '<div class="card" style="margin-top:10px;">'+(users.length?users.map(u=>
+        friendRow(u, '<button class="btn btn-primary btn-sm" data-add-friend="'+u.id+'">Adicionar</button>')
+      ).join(''):'<div class="empty">Nenhum usuário encontrado.</div>')+'</div>';
+      $$('[data-add-friend]', box).forEach(b=>b.addEventListener('click', async ()=>{
+        try{ await api('/friends/requests/'+b.getAttribute('data-add-friend'), {method:'POST'}); toast('Solicitação enviada!','success'); b.disabled=true; b.textContent='Enviado'; }catch(e){ toast(e.message,'error'); }
+      }));
+    }catch(e){ box.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+  }, 400);
+  if(search) search.addEventListener('input', doSearch);
+  $$('[data-friend-tab]').forEach(t=>t.addEventListener('click', ()=>{ friendsState.tab = t.getAttribute('data-friend-tab'); rerenderContent(); }));
+  loadFriendsPanel();
+}
+async function loadFriendsPanel(){
+  const panel = $('#friends-panel'); if(!panel) return;
+  try{
+    if(friendsState.tab==='list'){
+      const data = await api('/friends'); const list = Array.isArray(data)?data:(data?.content||[]);
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn-icon" data-remove-friend="'+(f.friendUserId||f.id)+'" title="Remover"><span class="material-symbols-outlined">person_remove</span></button>')).join('') : '<div class="empty"><span class="material-symbols-outlined">group</span>Você ainda não tem amigos. Busque alguém acima!</div>';
+      $$('[data-remove-friend]', panel).forEach(b=>b.addEventListener('click', ()=>confirmModal('Remover amizade','Tem certeza?',async ()=>{ try{ await api('/friends/'+b.getAttribute('data-remove-friend'),{method:'DELETE'}); toast('Amizade removida.','success'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} },'Remover')));
+    } else if(friendsState.tab==='incoming'){
+      const data = await api('/friends/requests/incoming'); const list = Array.isArray(data)?data:(data?.content||[]);
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-accept="'+f.id+'">Aceitar</button><button class="btn btn-ghost btn-sm" data-decline="'+f.id+'">Recusar</button>')).join('') : '<div class="empty">Nenhuma solicitação recebida.</div>';
+      $$('[data-accept]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-accept')+'/accept',{method:'POST'}); toast('Amizade aceita!','success'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
+      $$('[data-decline]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-decline')+'/decline',{method:'POST'}); toast('Solicitação recusada.','info'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
+    } else if(friendsState.tab==='outgoing'){
+      const data = await api('/friends/requests/outgoing'); const list = Array.isArray(data)?data:(data?.content||[]);
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-ghost btn-sm" data-cancel="'+f.id+'">Cancelar</button>')).join('') : '<div class="empty">Nenhuma solicitação enviada.</div>';
+      $$('[data-cancel]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-cancel'),{method:'DELETE'}); toast('Solicitação cancelada.','info'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
+    } else {
+      const data = await api('/recommendations/friends'); const list = Array.isArray(data)?data:(data?.content||[]);
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-add-friend2="'+f.id+'">Adicionar</button>')).join('') : '<div class="empty">Sem sugestões no momento — escolha alguns interesses.</div>';
+      $$('[data-add-friend2]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-add-friend2'),{method:'POST'}); toast('Solicitação enviada!','success'); b.disabled=true; b.textContent='Enviado'; }catch(e){toast(e.message,'error');} }));
+    }
+  }catch(e){ panel.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+
+/* =========================================================
+   VIEW: MOOD
+   ========================================================= */
+function ViewMood(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">mood</span>Humor</h2><p>Diário de humor — puramente autorrelato, sem julgamento.</p></div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">edit_note</span>Como você está agora?</div><div id="mood-today">'+SPIN+'</div></div>'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">query_stats</span>Histórico (30 dias)</div><div id="mood-history">'+SPIN+'</div></div>'+
+  '</div>';
+}
+function wire_mood(){
+  loadInto('mood-today', ()=>api('/mood/today').catch(()=>null), (m)=>{
+    const sel = m?m.level:null;
+    return '<div class="mood-picker">'+ENUMS.mood.map(x=>'<button class="mood-opt'+(sel===x.value?' selected':'')+'" data-mood2="'+x.value+'">'+x.emoji+'<small>'+x.label+'</small></button>').join('')+'</div>'+
+    '<div class="field" style="margin-top:16px;"><label>Nota (opcional)</label><textarea id="mood-note" placeholder="Um espaço só seu, se quiser escrever.">'+esc(m?.note||'')+'</textarea></div>'+
+    '<button class="btn btn-primary" id="mood-save-note">Salvar nota</button>';
+  });
+  const container = $('#mood-today');
+  if(container) container.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-mood2]'); const saveBtn = e.target.closest('#mood-save-note');
+    if(btn){
+      try{ await api('/mood', {method:'POST', body:{level:btn.getAttribute('data-mood2')}}); toast('Humor registrado.','success'); wire_mood(); }catch(err){ toast(err.message,'error'); }
+    } else if(saveBtn){
+      const note = $('#mood-note').value; const level = $('.mood-opt.selected')?.getAttribute('data-mood2');
+      try{ await api('/mood', {method:'POST', body:{level, note}}); toast('Nota salva.','success'); }catch(err){ toast(err.message,'error'); }
+    }
+  });
+  loadInto('mood-history', ()=>api('/mood/history?days=30').catch(()=>[]), (hist)=>{
+    hist = Array.isArray(hist)?hist:(hist?.content||[]);
+    if(!hist.length) return '<div class="empty"><span class="material-symbols-outlined">show_chart</span>Registre seu humor para ver sua evolução aqui!</div>';
+    return moodChartSVG(hist);
+  });
+}
+function moodChartSVG(hist){
+  const order = ENUMS.mood.map(m=>m.value);
+  const pts = hist.slice(-30).map((h,i)=>({x:i, y: order.indexOf(h.level), date:h.date||h.createdAt}));
+  const w = 320, h = 130, pad=14;
+  const xs = pts.length>1 ? (w-2*pad)/(pts.length-1) : 0;
+  const coord = pts.map((p,i)=>[pad+i*xs, h-pad-(p.y/(order.length-1))*(h-2*pad)]);
+  const path = coord.map((c,i)=>(i===0?'M':'L')+c[0].toFixed(1)+','+c[1].toFixed(1)).join(' ');
+  const dots = coord.map((c,i)=>'<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="3" fill="#4FA694"><title>'+esc(fmtDate(pts[i].date))+'</title></circle>').join('');
+  return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;"><path d="'+path+'" fill="none" stroke="#7ECFC0" stroke-width="2.5"/>'+dots+'</svg>'+
+  '<div class="row between muted" style="font-size:11px;margin-top:4px;"><span>🙁</span><span>😊</span><span>🤩</span></div>';
+}
+
+/* =========================================================
+   VIEW: BREATHING
+   ========================================================= */
+const breathState = { technique:null, running:false, phaseIdx:0, timer:null };
+function ViewBreathing(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">air</span>Respiração Guiada</h2><p>Escolha uma técnica e siga o ritmo do círculo.</p></div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">self_improvement</span>Técnicas</div><div id="breathing-list">'+SPIN+'</div></div>'+
+    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">insights</span>Sessão</div><div id="breathing-session"><div class="empty"><span class="material-symbols-outlined">air</span>Escolha uma técnica ao lado.</div></div>'+
+      '<div class="divider"></div><div class="card-title" style="font-size:13px;"><span class="material-symbols-outlined" style="font-size:18px;">bar_chart</span>Estatísticas</div><div id="breathing-stats" style="font-size:13px;">'+SPIN+'</div></div>'+
+  '</div>';
+}
+function wire_breathing(){
+  loadInto('breathing-list', ()=>api('/breathing/techniques'), (list)=>{
+    list = Array.isArray(list)?list:(list?.content||[]);
+    return list.map(t=>'<div class="list-item" data-pick-technique="'+t.id+'" style="cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--mint-700);">air</span><div class="meta"><div class="title">'+esc(t.name)+'</div><div class="sub">'+esc(t.description||(t.inhaleSeconds+'s inspirar · '+t.holdSeconds+'s segurar · '+t.exhaleSeconds+'s expirar'))+'</div></div><span class="material-symbols-outlined">chevron_right</span></div>').join('') || '<div class="empty">Nenhuma técnica encontrada.</div>';
+  }, (list)=>{
+    list = Array.isArray(list)?list:(list?.content||[]);
+    $$('[data-pick-technique]').forEach(el=>el.addEventListener('click', ()=>{
+      const t = list.find(x=>String(x.id)===el.getAttribute('data-pick-technique'));
+      startBreathing(t);
+    }));
+  });
+  loadInto('breathing-stats', ()=>api('/breathing/stats').catch(()=>null), (s)=>{
+    if(!s) return '<div class="muted">Sem dados ainda.</div>';
+    return '<div class="stat-trio"><div><div class="num" style="font-size:18px;">'+(s.totalSessions??s.sessions??0)+'</div><div class="lbl">Sessões</div></div><div><div class="num" style="font-size:18px;">'+(s.totalMinutes??s.minutes??0)+'</div><div class="lbl">Minutos</div></div><div><div class="num" style="font-size:18px;">'+(s.favoriteTechnique?'★':(s.byTechnique?Object.keys(s.byTechnique).length:0))+'</div><div class="lbl">Técnicas usadas</div></div></div>';
+  });
+}
+function startBreathing(t){
+  clearInterval(breathState.timer); breathState.technique=t; breathState.running=false;
+  const inhale = t.inhaleSeconds||t.inhale||4, hold1 = t.holdSeconds||t.hold||4, exhale = t.exhaleSeconds||t.exhale||4, hold2 = t.hold2Seconds||t.pause||0;
+  const phases = [{n:'Inalar',s:inhale,cls:'breathe-scale-in'},{n:'Segurar',s:hold1,cls:'breathe-scale-hold'},{n:'Exalar',s:exhale,cls:'breathe-scale-out'}];
+  if(hold2>0) phases.push({n:'Pausa',s:hold2,cls:'breathe-scale-hold'});
+  const el = $('#breathing-session');
+  el.innerHTML = '<div class="breathe-stage"><h4 style="margin-bottom:2px;">'+esc(t.name)+'</h4>'+
+    '<div class="breathe-circle" id="breathe-circle"><span class="phase" id="breathe-phase">Pronto</span><span class="secs" id="breathe-secs">'+phases[0].s+'</span></div>'+
+    '<button class="btn btn-primary" id="breathe-start">Começar</button></div>';
+  $('#breathe-start').addEventListener('click', function(){
+    if(breathState.running){ clearInterval(breathState.timer); breathState.running=false; this.textContent='Continuar'; return; }
+    breathState.running = true; this.textContent='Pausar';
+    let pIdx=0, secLeft=phases[0].s;
+    const circle = $('#breathe-circle'), phaseLbl=$('#breathe-phase'), secLbl=$('#breathe-secs');
+    circle.className='breathe-circle '+phases[0].cls; phaseLbl.textContent=phases[0].n; secLbl.textContent=secLeft;
+    breathState.timer = setInterval(()=>{
+      secLeft--;
+      if(secLeft<=0){ pIdx=(pIdx+1)%phases.length; secLeft=phases[pIdx].s; circle.className='breathe-circle '+phases[pIdx].cls; phaseLbl.textContent=phases[pIdx].n;
+        if(pIdx===0){ completeBreathingCycle(t); }
+      }
+      secLbl.textContent = secLeft;
+    }, 1000);
+  });
+}
+let breathCompletedOnce = {};
+async function completeBreathingCycle(t){
+  if(breathCompletedOnce[t.id]) return; breathCompletedOnce[t.id]=true;
+  try{ await api('/breathing/techniques/'+t.id+'/complete', {method:'POST'}); toast('Sessão registrada! +XP','success'); }catch(e){}
+}
+
+/* =========================================================
+   VIEW: TASKS & DAILY MISSIONS
+   ========================================================= */
+const taskState = { tab:'tasks', statusFilter:'', categoryFilter:'' };
+function ViewTasks(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">task_alt</span>Tarefas &amp; Missões</h2><p>Tarefas pessoais livres e missões diárias geradas pelo sistema.</p></div>'+
+  '<div class="tabs"><button class="tab'+(taskState.tab==='tasks'?' active':'')+'" data-task-tab="tasks">Minhas tarefas</button><button class="tab'+(taskState.tab==='missions'?' active':'')+'" data-task-tab="missions">Missões diárias</button></div>'+
+  (taskState.tab==='tasks' ?
+    '<div class="row between" style="margin-bottom:14px;flex-wrap:wrap;gap:10px;">'+
+      '<div class="row gap-8" style="flex-wrap:wrap;">'+
+        '<select id="task-status-filter"><option value="">Todos status</option><option value="PENDING">Pendente</option><option value="IN_PROGRESS">Em progresso</option><option value="COMPLETED">Concluída</option></select>'+
+        '<input type="text" id="task-cat-filter" placeholder="Filtrar categoria..." style="width:160px;">'+
+      '</div><button class="btn btn-primary" id="task-new-btn"><span class="material-symbols-outlined">add</span>Adicionar</button>'+
+    '</div><div class="card" id="tasks-list">'+SPIN+'</div>'
+   : '<div class="card" id="missions-list">'+SPIN+'</div>');
+}
+function taskCard(t){
+  const statusColor = t.status==='COMPLETED'?'pill':t.status==='IN_PROGRESS'?'pill-warning':'pill-muted';
+  return '<div class="list-item"><span class="material-symbols-outlined" style="color:var(--mint-700);">'+(t.status==='COMPLETED'?'check_circle':'radio_button_unchecked')+'</span>'+
+  '<div class="meta"><div class="title">'+esc(t.title)+'</div><div class="sub">'+esc(t.category||'Sem categoria')+(t.dueDate?' · vence '+fmtDate(t.dueDate):'')+'</div></div>'+
+  '<span class="'+statusColor+'">'+(ENUMS.taskStatus[t.status]||t.status)+'</span>'+
+  '<div class="actions">'+
+    (t.status!=='COMPLETED' ? '<button class="btn-icon" data-complete-task="'+t.id+'" title="Concluir"><span class="material-symbols-outlined">check</span></button>' : '<button class="btn-icon" data-reopen-task="'+t.id+'" title="Reabrir"><span class="material-symbols-outlined">refresh</span></button>')+
+    '<button class="btn-icon" data-edit-task="'+t.id+'" title="Editar"><span class="material-symbols-outlined">edit</span></button>'+
+    '<button class="btn-icon" data-del-task="'+t.id+'" title="Excluir"><span class="material-symbols-outlined">delete</span></button>'+
+  '</div></div>';
+}
+function taskFormModal(existing){
+  openModal('<h3 style="margin-bottom:16px;padding-right:24px;">'+(existing?'Editar tarefa':'Nova tarefa')+'</h3>'+
+    '<form id="task-form">'+
+      '<div class="field"><label>Título</label><input type="text" name="title" required value="'+esc(existing?.title||'')+'"></div>'+
+      '<div class="field"><label>Descrição</label><textarea name="description">'+esc(existing?.description||'')+'</textarea></div>'+
+      '<div class="grid grid-2"><div class="field"><label>Categoria</label><input type="text" name="category" value="'+esc(existing?.category||'')+'" placeholder="Ex: Estudos"></div>'+
+      '<div class="field"><label>Vencimento</label><input type="date" name="dueDate" value="'+(existing?.dueDate?existing.dueDate.slice(0,10):'')+'"></div></div>'+
+      '<button class="btn btn-primary btn-block" type="submit">'+(existing?'Salvar alterações':'Criar tarefa')+'</button>'+
+    '</form>');
+  $('#task-form').addEventListener('submit', async (e)=>{
+    e.preventDefault(); const fd = new FormData(e.target);
+    const body = {title:fd.get('title'), description:fd.get('description'), category:fd.get('category')||null, dueDate: fd.get('dueDate')||null};
+    try{
+      if(existing) await api('/tasks/'+existing.id, {method:'PUT', body});
+      else await api('/tasks', {method:'POST', body});
+      toast(existing?'Tarefa atualizada.':'Tarefa criada.', 'success'); closeModal(); loadTasksList();
+    }catch(err){ toast(err.message,'error'); }
+  });
+}
+async function loadTasksList(){
+  const el = $('#tasks-list'); if(!el) return;
+  try{
+    let path = '/tasks?';
+    if(taskState.statusFilter) path += 'status='+taskState.statusFilter+'&';
+    if(taskState.categoryFilter) path += 'category='+encodeURIComponent(taskState.categoryFilter)+'&';
+    const data = await api(path);
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(taskCard).join('') : '<div class="empty"><span class="material-symbols-outlined">task_alt</span>Nenhuma tarefa por aqui. Adicione a primeira!</div>';
+    el.querySelectorAll('[data-complete-task]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-complete-task')+'/complete',{method:'PATCH'}); toast('Tarefa concluída! +XP','success'); loadTasksList(); }catch(e){toast(e.message,'error');} }));
+    el.querySelectorAll('[data-reopen-task]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-reopen-task')+'/reopen',{method:'PATCH'}); toast('Tarefa reaberta.','info'); loadTasksList(); }catch(e){toast(e.message,'error');} }));
+    el.querySelectorAll('[data-del-task]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Excluir tarefa','Essa ação não pode ser desfeita.',async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-del-task'),{method:'DELETE'}); toast('Tarefa removida.','success'); loadTasksList(); }catch(e){toast(e.message,'error');} },'Excluir')));
+    el.querySelectorAll('[data-edit-task]').forEach(b=>b.addEventListener('click', ()=>{ const t = list.find(x=>String(x.id)===b.getAttribute('data-edit-task')); taskFormModal(t); }));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function wire_tasks(){
+  $$('[data-task-tab]').forEach(t=>t.addEventListener('click', ()=>{ taskState.tab = t.getAttribute('data-task-tab'); rerenderContent(); }));
+  if(taskState.tab==='tasks'){
+    loadTasksList();
+    $('#task-new-btn').addEventListener('click', ()=>taskFormModal(null));
+    $('#task-status-filter').value = taskState.statusFilter;
+    $('#task-status-filter').addEventListener('change', (e)=>{ taskState.statusFilter=e.target.value; loadTasksList(); });
+    $('#task-cat-filter').value = taskState.categoryFilter;
+    $('#task-cat-filter').addEventListener('input', debounce((e)=>{ taskState.categoryFilter=e.target.value; loadTasksList(); },400));
+  } else {
+    loadInto('missions-list', ()=>api('/missions/daily'), (data)=>{
+      const list = Array.isArray(data)?data:(data?.content||[]);
+      if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">military_tech</span>Nenhuma missão gerada para hoje ainda.</div>';
+      return list.map(m=>'<div class="list-item"><span class="material-symbols-outlined" style="color:var(--mint-700);">'+(m.completed?'check_circle':'radio_button_unchecked')+'</span>'+
+        '<div class="meta"><div class="title">'+esc(m.title||m.templateName)+'</div><div class="sub">'+esc(m.description||'')+' · +'+(m.xpReward||m.xp||0)+' XP</div></div>'+
+        (m.completed?'<span class="pill">Concluída</span>':'<button class="btn btn-primary btn-sm" data-complete-mission="'+m.id+'">Concluir</button>')+'</div>').join('');
+    }, ()=>{
+      $$('[data-complete-mission]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/missions/daily/'+b.getAttribute('data-complete-mission')+'/complete',{method:'POST'}); toast('Missão concluída! +XP','success'); rerenderContent(); }catch(e){toast(e.message,'error');} }));
+    });
+  }
+}
+
+/* =========================================================
+   VIEW: ESTRELAS PONTILHADAS (mensagens anônimas)
+   ========================================================= */
+function ViewAnonymous(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">stars</span>Estrelas Pontilhadas</h2><p>Envie mensagens anônimas ao mar e receba apoio de outras pessoas.</p></div>'+
+  '<div class="card" style="margin-bottom:16px;"><div class="card-title"><span class="material-symbols-outlined">send</span>Enviar ao mar</div>'+
+    '<textarea id="anon-text" placeholder="Escreva o que quiser — de forma completamente anônima..." maxlength="500"></textarea>'+
+    '<div class="hint" style="margin:8px 0 12px;">Sua mensagem será publicada sem nenhuma identificação sua.</div>'+
+    '<button class="btn btn-primary" id="anon-send">Enviar ao mar</button></div>'+
+  '<div id="anon-feed">'+SPIN+'</div>';
+}
+function anonCard(m){
+  return '<div class="card" style="margin-bottom:12px;"><div class="row between" style="margin-bottom:8px;"><span class="pill"><span class="material-symbols-outlined" style="font-size:14px;">stars</span>Anônimo</span><span class="muted">'+timeAgo(m.createdAt)+'</span></div>'+
+  '<p style="font-size:14px;line-height:1.5;margin-bottom:12px;">'+esc(m.content||m.message).replace(/\n/g,'<br>')+'</p>'+
+  '<div class="row gap-16"><button class="link-btn" data-like-anon="'+m.id+'"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">'+(m.likedByMe?'favorite':'favorite_border')+'</span> '+(m.likesCount??m.likes??0)+'</button>'+
+  '<button class="link-btn" data-reply-anon="'+m.id+'"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">reply</span> Responder</button>'+
+  '<button class="link-btn" data-report-anon="'+m.id+'" style="color:var(--muted);"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">flag</span> Denunciar</button>'+
+  (m.mine?'<button class="link-btn" data-del-anon="'+m.id+'" style="color:var(--danger);margin-left:auto;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">delete</span></button>':'')+
+  '</div><div id="anon-replies-'+m.id+'"></div></div>';
+}
+async function loadAnonFeed(){
+  const el = $('#anon-feed'); if(!el) return;
+  try{
+    const data = await api('/anonymous');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(anonCard).join('') : '<div class="empty"><span class="material-symbols-outlined">mail</span>Nenhuma mensagem no mar ainda.</div>';
+    wireAnonCards(el, list);
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function wireAnonCards(el, list){
+  el.querySelectorAll('[data-like-anon]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/anonymous/'+b.getAttribute('data-like-anon')+'/like',{method:'POST'}); loadAnonFeed(); }catch(e){toast(e.message,'error');} }));
+  el.querySelectorAll('[data-del-anon]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Remover mensagem','Deseja remover sua mensagem do mar?',async ()=>{ try{ await api('/anonymous/'+b.getAttribute('data-del-anon'),{method:'DELETE'}); toast('Mensagem removida.','success'); loadAnonFeed(); }catch(e){toast(e.message,'error');} },'Remover')));
+  el.querySelectorAll('[data-report-anon]').forEach(b=>b.addEventListener('click', ()=>reportModal('CHAT_MESSAGE_ANON', b.getAttribute('data-report-anon'))));
+  el.querySelectorAll('[data-reply-anon]').forEach(b=>b.addEventListener('click', async ()=>{
+    const id = b.getAttribute('data-reply-anon'); const box = $('#anon-replies-'+id);
+    if(box.dataset.open==='1'){ box.innerHTML=''; box.dataset.open='0'; return; }
+    box.dataset.open='1'; box.innerHTML = SPIN;
+    try{
+      const data = await api('/anonymous/'+id+'/replies');
+      const replies = Array.isArray(data)?data:(data?.content||[]);
+      box.innerHTML = '<div class="divider"></div>'+(replies.length?replies.map(r=>'<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">'+esc(r.content||r.message)+'<div class="muted" style="margin-top:2px;">'+timeAgo(r.createdAt)+'</div></div>').join(''):'<div class="muted" style="padding:6px 0;">Sem respostas ainda.</div>')+
+      '<div class="row gap-8" style="margin-top:10px;"><input type="text" placeholder="Responder de forma anônima..." class="reply-input" style="flex:1;"><button class="btn btn-sm btn-primary" data-send-reply="'+id+'">Enviar</button></div>';
+      box.querySelector('[data-send-reply]').addEventListener('click', async ()=>{
+        const input = box.querySelector('.reply-input'); const text = input.value.trim(); if(!text) return;
+        try{ await api('/anonymous', {method:'POST', body:{content:text, parentId:id, replyToId:id}}); toast('Resposta enviada.','success'); box.dataset.open='0'; $('[data-reply-anon="'+id+'"]').click(); }catch(e){ toast(e.message,'error'); }
+      });
+    }catch(e){ box.innerHTML = '<div class="muted">Erro ao carregar respostas.</div>'; }
+  }));
+}
+function reportModal(targetType, targetId){
+  openModal('<h3 style="margin-bottom:14px;padding-right:24px;">Denunciar</h3><form id="report-form">'+
+    '<div class="field"><label>Motivo</label><select name="reason">'+ENUMS.reportReasons.map(r=>'<option value="'+r.value+'">'+r.label+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>Detalhes (opcional)</label><textarea name="details" placeholder="Conte mais, se quiser."></textarea></div>'+
+    '<button class="btn btn-danger btn-block" type="submit">Enviar denúncia</button></form>');
+  $('#report-form').addEventListener('submit', async (e)=>{
+    e.preventDefault(); const fd = new FormData(e.target);
+    try{ await api('/reports', {method:'POST', body:{targetType, targetId, reason:fd.get('reason'), details:fd.get('details')}}); toast('Denúncia enviada. Obrigado por ajudar a manter a comunidade segura.','success'); closeModal(); }catch(err){ toast(err.message,'error'); }
+  });
+}
+function wire_anonymous(){
+  loadAnonFeed();
+  $('#anon-send').addEventListener('click', async ()=>{
+    const ta = $('#anon-text'); const text = ta.value.trim(); if(!text) return;
+    try{ await api('/anonymous', {method:'POST', body:{content:text}}); ta.value=''; toast('Enviado ao mar. 🌊','success'); loadAnonFeed(); }catch(e){ toast(e.message,'error'); }
+  });
+}
+
+/* =========================================================
+   VIEW: INTERESSES
+   ========================================================= */
+let interestSelection = null;
+function ViewInterests(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">interests</span>Interesses</h2><p>Escolha o que você curte — isso melhora recomendações de amigos e libera salas temáticas.</p></div>'+
+  '<div class="card" id="interests-panel">'+SPIN+'</div>';
+}
+function wire_interests(){
+  loadInto('interests-panel', ()=>api('/interests'), (data)=>{
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    interestSelection = new Set(list.filter(i=>i.selected).map(i=>i.id));
+    return '<div class="row gap-8" style="flex-wrap:wrap;">'+list.map(i=>
+      '<button class="tab" data-toggle-interest="'+i.id+'" style="border:1.5px solid '+(interestSelection.has(i.id)?'var(--mint-700)':'var(--border)')+';background:'+(interestSelection.has(i.id)?'var(--mint-soft)':'#fff')+';">'+esc(i.name||i.label)+(i.hasRoom||i.roomId?' <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">tag</span>':'')+'</button>'
+    ).join('')+'</div><button class="btn btn-primary" id="save-interests" style="margin-top:18px;">Salvar interesses</button>';
+  }, (data)=>{
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    $$('[data-toggle-interest]').forEach(b=>b.addEventListener('click', ()=>{
+      const id = b.getAttribute('data-toggle-interest');
+      if(interestSelection.has(id)){ interestSelection.delete(id); b.style.background='#fff'; b.style.borderColor='var(--border)'; }
+      else { interestSelection.add(id); b.style.background='var(--mint-soft)'; b.style.borderColor='var(--mint-700)'; }
+    }));
+    $('#save-interests').addEventListener('click', async ()=>{
+      try{ await api('/interests/me', {method:'PUT', body:{interestIds:Array.from(interestSelection)}}); toast('Interesses atualizados!','success'); }catch(e){ toast(e.message,'error'); }
+    });
+  });
+}
+
+/* =========================================================
+   VIEW: NOTIFICATIONS
+   ========================================================= */
+function ViewNotifications(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">notifications</span>Notificações</h2><p>Tudo que aconteceu por aqui.</p></div>'+
+  '<div class="row between" style="margin-bottom:12px;"><label class="row gap-8" style="font-size:13px;"><input type="checkbox" id="notif-only-unread"> Só não lidas</label>'+
+  '<button class="link-btn" id="notif-mark-all">Marcar todas como lidas</button></div>'+
+  '<div class="card" id="notif-list">'+SPIN+'</div>';
+}
+function notifIcon(type){
+  const map = {FRIEND_REQUEST:'person_add', FRIEND_ACCEPTED:'group', MESSAGE:'chat', MISSION_COMPLETED:'military_tech', NEW_MISSIONS:'auto_awesome', SHOP_PURCHASE:'storefront', ACHIEVEMENT:'emoji_events', LEVEL_UP:'trending_up'};
+  return map[type] || 'notifications';
+}
+function notifRow(n){
+  return '<div class="list-item" style="'+(n.read?'':'background:var(--mint-pale);')+'"><span class="material-symbols-outlined" style="color:var(--mint-700);">'+notifIcon(n.type)+'</span>'+
+  '<div class="meta"><div class="title">'+esc(n.title||n.message)+'</div><div class="sub">'+esc(n.body||'')+' · '+timeAgo(n.createdAt)+'</div></div>'+
+  (n.read?'':'<button class="btn-icon" data-mark-read="'+n.id+'" title="Marcar como lida"><span class="material-symbols-outlined">mark_email_read</span></button>')+'</div>';
+}
+function wire_notifications(){
+  loadNotifList();
+  $('#notif-only-unread').addEventListener('change', loadNotifList);
+  $('#notif-mark-all').addEventListener('click', async ()=>{ try{ await api('/notifications/read-all', {method:'PATCH'}); toast('Tudo marcado como lido.','success'); state.notifUnread=0; loadNotifList(); }catch(e){toast(e.message,'error');} });
+}
+async function loadNotifList(){
+  const el = $('#notif-list'); if(!el) return;
+  const onlyUnread = $('#notif-only-unread')?.checked;
+  try{
+    const data = await api('/notifications'+(onlyUnread?'?unreadOnly=true':''));
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(notifRow).join('') : '<div class="empty"><span class="material-symbols-outlined">notifications_off</span>Nenhuma notificação por aqui.</div>';
+    el.querySelectorAll('[data-mark-read]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/notifications/'+b.getAttribute('data-mark-read')+'/read',{method:'PATCH'}); refreshNotifCount(); loadNotifList(); }catch(e){toast(e.message,'error');} }));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+async function refreshNotifCount(){
+  try{ const r = await api('/notifications/unread-count'); state.notifUnread = r?.count ?? r?.unreadCount ?? r ?? 0; const dot = $('.notif-dot'); const nb = $('#notif-btn');
+    if(nb){ const old = nb.querySelector('.notif-dot'); if(old) old.remove(); if(state.notifUnread>0) nb.insertAdjacentHTML('beforeend', '<span class="notif-dot">'+(state.notifUnread>99?'99+':state.notifUnread)+'</span>'); }
+    $$('.nav-item[data-nav="notifications"] .nav-badge').forEach(b=>b.remove());
+    if(state.notifUnread>0){ const item = $('.nav-item[data-nav="notifications"]'); if(item) item.insertAdjacentHTML('beforeend', '<span class="nav-badge">'+(state.notifUnread>99?'99+':state.notifUnread)+'</span>'); }
+  }catch(e){}
+}
+function openNotifDropdown(){ navigate('notifications'); }
+
+/* =========================================================
+   VIEW: ACHIEVEMENTS
+   ========================================================= */
+function ViewAchievements(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">emoji_events</span>Conquistas</h2><p>Marcos desbloqueados na sua jornada no MIB.</p></div>'+
+  '<div class="grid grid-3" id="achievements-grid">'+SPIN+'</div>';
+}
+function wire_achievements(){
+  loadInto('achievements-grid', ()=>api('/achievements'), (data)=>{
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">emoji_events</span>Nenhuma conquista cadastrada.</div>';
+    return list.map(a=>'<div class="card" style="text-align:center;opacity:'+(a.unlocked?1:.5)+';">'+
+      '<span class="material-symbols-outlined" style="font-size:34px;color:'+(a.unlocked?'var(--gold)':'var(--muted)')+';">'+(a.unlocked?'emoji_events':'lock')+'</span>'+
+      '<div style="font-weight:700;margin-top:8px;font-size:13.5px;">'+esc(a.name||a.title)+'</div><div class="muted" style="margin-top:4px;">'+esc(a.description||'')+'</div>'+
+      (a.unlocked && a.unlockedAt?'<div class="pill" style="margin-top:8px;">'+fmtDate(a.unlockedAt)+'</div>':'')+'</div>').join('');
+  });
+}
+
+/* =========================================================
+   VIEW: SHOP & INVENTORY
+   ========================================================= */
+const shopState = { tab:'shop' };
+function ViewShop(){
+  const u = state.user||{};
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">storefront</span>Loja &amp; Inventário</h2><p>Carteira de XP: <b>'+(u.xpWallet??'—')+' XP</b> disponíveis para gastar.</p></div>'+
+  '<div class="tabs"><button class="tab'+(shopState.tab==='shop'?' active':'')+'" data-shop-tab="shop">Loja</button><button class="tab'+(shopState.tab==='inv'?' active':'')+'" data-shop-tab="inv">Inventário</button></div>'+
+  '<div class="grid grid-3" id="shop-grid">'+SPIN+'</div>';
+}
+function wire_shop(){
+  $$('[data-shop-tab]').forEach(t=>t.addEventListener('click', ()=>{ shopState.tab=t.getAttribute('data-shop-tab'); rerenderContent(); }));
+  if(shopState.tab==='shop'){
+    loadInto('shop-grid', ()=>api('/shop/items'), (data)=>{
+      const list = Array.isArray(data)?data:(data?.content||[]);
+      if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">storefront</span>Loja vazia no momento.</div>';
+      return list.map(i=>'<div class="card"><div class="row between"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span>'+(i.owned?'<span class="pill" style="background:var(--mint-soft);">Possui</span>':'')+'</div>'+
+        '<div style="font-weight:700;margin:10px 0 3px;">'+esc(i.name)+'</div><div class="muted" style="margin-bottom:12px;">'+esc(i.description||'')+'</div>'+
+        (i.owned ? '<button class="btn btn-ghost btn-block" disabled>Já possui</button>' :
+        '<button class="btn btn-primary btn-block" data-buy-item="'+i.id+'">Comprar · '+i.price+' XP</button>')+'</div>').join('');
+    }, ()=>{
+      $$('[data-buy-item]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Confirmar compra','Deseja gastar XP da sua carteira neste item?',async ()=>{
+        try{ await api('/shop/items/'+b.getAttribute('data-buy-item')+'/purchase',{method:'POST'}); toast('Item comprado!','success'); await fetchMe(); rerenderContent(); }catch(e){ toast(e.message,'error'); }
+      },'Comprar')));
+    });
+  } else {
+    loadInto('shop-grid', ()=>api('/inventory'), (data)=>{
+      const list = Array.isArray(data)?data:(data?.content||[]);
+      if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">backpack</span>Seu inventário está vazio. Visite a loja!</div>';
+      return list.map(i=>'<div class="card"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span>'+
+        '<div style="font-weight:700;margin:10px 0 12px;">'+esc(i.name)+'</div>'+
+        (i.equipped ? '<button class="btn btn-ghost btn-block" data-unequip-item="'+(i.shopItemId||i.id)+'">Desequipar</button>' : '<button class="btn btn-primary btn-block" data-equip-item="'+(i.shopItemId||i.id)+'">Equipar</button>')+'</div>').join('');
+    }, ()=>{
+      $$('[data-equip-item]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/inventory/'+b.getAttribute('data-equip-item')+'/equip',{method:'POST'}); toast('Item equipado!','success'); rerenderContent(); }catch(e){ toast(e.message,'error'); } }));
+      $$('[data-unequip-item]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/inventory/'+b.getAttribute('data-unequip-item')+'/unequip',{method:'POST'}); toast('Item desequipado.','info'); rerenderContent(); }catch(e){ toast(e.message,'error'); } }));
+    });
+  }
+}
+
+/* =========================================================
+   VIEW: REPORTS (relatórios pessoais)
+   ========================================================= */
+function ViewReports(){
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">insights</span>Relatórios</h2><p>Acompanhe sua evolução de bem-estar.</p></div>'+
+  '<div class="grid grid-2"><div class="card"><div class="card-title"><span class="material-symbols-outlined">trending_up</span>Evolução do Humor (30 dias)</div><div id="report-mood">'+SPIN+'</div></div>'+
+  '<div class="card"><div class="card-title"><span class="material-symbols-outlined">bar_chart</span>Produtividade</div><div id="report-tasks">'+SPIN+'</div></div></div>'+
+  '<div class="card" style="margin-top:16px;"><div class="card-title"><span class="material-symbols-outlined">air</span>Respiração</div><div id="report-breathing">'+SPIN+'</div></div>';
+}
+function wire_reports(){
+  loadInto('report-mood', ()=>api('/mood/history?days=30').catch(()=>[]), (hist)=>{
+    hist = Array.isArray(hist)?hist:(hist?.content||[]);
+    return hist.length ? moodChartSVG(hist) : '<div class="empty">Sem registros de humor ainda.</div>';
+  });
+  loadInto('report-tasks', ()=>api('/tasks').catch(()=>[]), (tasks)=>{
+    tasks = Array.isArray(tasks)?tasks:(tasks?.content||[]);
+    const total = tasks.length, done = tasks.filter(t=>t.status==='COMPLETED').length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    return '<div class="xp-progress-row"><span>Concluídas</span><span>'+done+'/'+total+' ('+pct+'%)</span></div><div class="xp-bar"><div style="width:'+pct+'%"></div></div>';
+  });
+  loadInto('report-breathing', ()=>api('/breathing/stats').catch(()=>null), (s)=>{
+    if(!s) return '<div class="empty">Sem sessões de respiração ainda.</div>';
+    return '<div class="stat-trio"><div><div class="num">'+(s.totalSessions??0)+'</div><div class="lbl">Sessões</div></div><div><div class="num">'+(s.totalMinutes??0)+'</div><div class="lbl">Minutos</div></div><div><div class="num">'+(state.user?.currentLoginStreak??0)+'</div><div class="lbl">Streak dias</div></div></div>';
+  });
+}
+
+/* =========================================================
+   VIEW: PROFILE
+   ========================================================= */
+function ViewProfile(){
+  const u = state.user||{};
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">person</span>Perfil</h2></div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card"><div class="row gap-16" style="margin-bottom:18px;"><div class="avatar avatar-lg">'+(u.avatarUrl?'<img src="'+esc(u.avatarUrl)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">':esc(initials(u.displayName)))+'</div>'+
+      '<div><h3>'+esc(u.displayName||'')+'</h3><div class="muted">@'+esc(u.username||'')+'</div>'+
+      '<label class="link-btn" style="display:inline-block;margin-top:6px;">Alterar foto<input type="file" id="avatar-input" accept="image/png,image/jpeg,image/webp" style="display:none;"></label></div></div>'+
+      '<form id="profile-form">'+
+        '<div class="field"><label>Nome de exibição</label><input type="text" name="displayName" value="'+esc(u.displayName||'')+'"></div>'+
+        '<div class="field"><label>Bio</label><textarea name="bio" placeholder="Conte um pouco sobre você...">'+esc(u.bio||'')+'</textarea></div>'+
+        '<div class="field"><label>Status</label><input type="text" name="status" value="'+esc(u.status||'')+'" placeholder="Ex: focado nos estudos"></div>'+
+        '<div class="field"><label>Visibilidade do perfil</label><select name="visibility"><option value="PUBLIC" '+(u.visibility==='PUBLIC'?'selected':'')+'>Público</option><option value="PRIVATE" '+(u.visibility==='PRIVATE'?'selected':'')+'>Privado (só amigos)</option></select></div>'+
+        '<button class="btn btn-primary" type="submit">Salvar alterações</button>'+
+      '</form></div>'+
+    '<div>'+
+      '<div class="card" style="margin-bottom:16px;"><div class="card-title"><span class="material-symbols-outlined">assessment</span>Resumo</div>'+
+        '<div class="stat-trio"><div><div class="num">Nv '+(u.level??1)+'</div><div class="lbl">Nível</div></div><div><div class="num">'+(u.totalXp??0)+'</div><div class="lbl">XP total</div></div><div><div class="num">'+(u.currentLoginStreak??0)+'</div><div class="lbl">Streak</div></div></div></div>'+
+      '<div class="card"><div class="card-title"><span class="material-symbols-outlined">settings</span>Conta</div>'+
+        '<button class="btn btn-danger btn-block" id="profile-logout-btn">Sair da conta</button></div>'+
+    '</div>'+
+  '</div>';
+}
+function wire_profile(){
+  $('#profile-form').addEventListener('submit', async (e)=>{
+    e.preventDefault(); const fd = new FormData(e.target); const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    try{
+      const body = {displayName:fd.get('displayName'), bio:fd.get('bio'), status:fd.get('status'), visibility:fd.get('visibility')};
+      await api('/profile/me', {method:'PUT', body});
+      await fetchMe(); toast('Perfil atualizado!','success'); rerenderContent();
+    }catch(err){ toast(err.message,'error'); } finally{ btn.disabled=false; }
+  });
+  $('#avatar-input').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    if(file.size > 2*1024*1024){ toast('A imagem deve ter até 2MB.','error'); return; }
+    const fd = new FormData(); fd.append('file', file); fd.append('avatar', file);
+    try{ await api('/profile/me/avatar', {method:'POST', body:fd}); await fetchMe(); toast('Foto atualizada!','success'); rerenderContent(); }catch(err){ toast(err.message,'error'); }
+  });
+  $('#profile-logout-btn').addEventListener('click', ()=>confirmModal('Sair da conta','Tem certeza que deseja sair?', ()=>logout(), 'Sair'));
+}
+
+/* =========================================================
+   VIEW: ADMIN
+   ========================================================= */
+const adminState = { tab:'stats' };
+function ViewAdmin(){
+  const tabs = [['stats','Estatísticas'],['users','Usuários'],['reports','Denúncias'],['moderation','Moderação'],['missions','Missões'],['shopadmin','Loja'],['logs','Logs']];
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">shield_person</span>Painel Admin</h2><p>Gerencie usuários, conteúdo e configurações do MIB.</p></div>'+
+  '<div class="tabs">'+tabs.map(t=>'<button class="tab'+(adminState.tab===t[0]?' active':'')+'" data-admin-tab="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'+
+  '<div id="admin-panel">'+SPIN+'</div>';
+}
+function wire_admin(){
+  $$('[data-admin-tab]').forEach(t=>t.addEventListener('click', ()=>{ adminState.tab=t.getAttribute('data-admin-tab'); rerenderContent(); }));
+  const loaders = {
+    stats: loadAdminStats, users: loadAdminUsers, reports: loadAdminReports,
+    moderation: loadAdminModeration, missions: loadAdminMissions, shopadmin: loadAdminShop, logs: loadAdminLogs
+  };
+  (loaders[adminState.tab] || loadAdminStats)();
+}
+async function loadAdminStats(){
+  const el = $('#admin-panel');
+  try{
+    const s = await api('/admin/stats');
+    el.innerHTML = '<div class="grid grid-3">'+
+      statBox('group','Usuários totais', s.totalUsers??s.usersTotal??0)+ statBox('block','Banidos', s.bannedUsers??0)+ statBox('pause_circle','Suspensos', s.suspendedUsers??0)+
+      statBox('person_add','Novos (7d)', s.newUsers7d??s.newRegistrations7d??0)+ statBox('person_add','Novos (30d)', s.newUsers30d??s.newRegistrations30d??0)+ statBox('chat','Mensagens', s.totalMessages??0)+
+      statBox('task_alt','Tarefas concluídas', s.tasksCompleted??0)+ statBox('military_tech','Missões concluídas', s.missionsCompleted??0)+ statBox('air','Sessões respiração', s.breathingSessions??0)+
+      statBox('report','Denúncias pendentes', s.pendingReports??0)+
+    '</div>';
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function statBox(icon,label,val){ return '<div class="card" style="text-align:center;"><span class="material-symbols-outlined" style="color:var(--mint-700);font-size:26px;">'+icon+'</span><div style="font-size:22px;font-weight:900;color:var(--ink);margin-top:6px;">'+val+'</div><div class="muted">'+label+'</div></div>'; }
+
+async function loadAdminUsers(q){
+  const el = $('#admin-panel');
+  el.innerHTML = '<div class="field"><input type="text" id="admin-user-search" placeholder="Buscar usuário..." value="'+esc(q||'')+'"></div><div class="card" id="admin-users-list">'+SPIN+'</div>';
+  $('#admin-user-search').addEventListener('input', debounce((e)=>renderAdminUsersList(e.target.value), 400));
+  renderAdminUsersList(q||'');
+}
+async function renderAdminUsersList(q){
+  const el = $('#admin-users-list'); if(!el) return;
+  try{
+    const data = await api('/admin/users'+(q?('?query='+encodeURIComponent(q)):''));
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(u=>'<div class="list-item"><div class="avatar">'+esc(initials(u.displayName||u.username))+'</div>'+
+      '<div class="meta"><div class="title">'+esc(u.displayName||u.username)+' '+(u.banned?'<span class="pill-danger pill">Banido</span>':u.suspended?'<span class="pill-warning pill">Suspenso</span>':'')+'</div><div class="sub">'+esc(u.email||'')+'</div></div>'+
+      '<div class="actions">'+
+        (u.banned?'<button class="btn btn-sm btn-ghost" data-unban="'+u.id+'">Desbanir</button>':'<button class="btn btn-sm btn-danger" data-ban="'+u.id+'">Banir</button>')+
+        (u.suspended?'<button class="btn btn-sm btn-ghost" data-unsuspend="'+u.id+'">Reativar</button>':'<button class="btn btn-sm btn-ghost" data-suspend="'+u.id+'">Suspender</button>')+
+        (isRoleAdmin(u)?'<button class="btn-icon" data-revoke-admin="'+u.id+'" title="Revogar admin"><span class="material-symbols-outlined">remove_moderator</span></button>':'<button class="btn-icon" data-grant-admin="'+u.id+'" title="Tornar admin"><span class="material-symbols-outlined">add_moderator</span></button>')+
+      '</div></div>').join('') : '<div class="empty">Nenhum usuário encontrado.</div>';
+    $$('[data-ban]',el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Banir usuário','Tem certeza? O usuário perderá acesso à conta.', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-ban')+'/ban',{method:'POST'}); toast('Usuário banido.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }, 'Banir')));
+    $$('[data-unban]',el).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-unban')+'/unban',{method:'POST'}); toast('Usuário desbanido.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }));
+    $$('[data-suspend]',el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Suspender usuário','Confirma a suspensão temporária?', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-suspend')+'/suspend',{method:'POST'}); toast('Usuário suspenso.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }, 'Suspender')));
+    $$('[data-unsuspend]',el).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-unsuspend')+'/unsuspend',{method:'POST'}); toast('Suspensão removida.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }));
+    $$('[data-grant-admin]',el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Conceder admin','Conceder privilégios de administrador a este usuário?', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-grant-admin')+'/roles/admin/grant',{method:'POST'}); toast('Privilégio concedido.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }, 'Conceder')));
+    $$('[data-revoke-admin]',el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Revogar admin','Remover privilégios de administrador?', async ()=>{ try{ await api('/admin/users/'+b.getAttribute('data-revoke-admin')+'/roles/admin/revoke',{method:'POST'}); toast('Privilégio revogado.','success'); renderAdminUsersList(q); }catch(e){toast(e.message,'error');} }, 'Revogar')));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function isRoleAdmin(u){ return (u.roles||u.authorities||[]).some(r=>String(r).toUpperCase().includes('ADMIN')); }
+
+async function loadAdminReports(){
+  const el = $('#admin-panel'); el.innerHTML = SPIN;
+  try{
+    const data = await api('/admin/reports');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = '<div class="card">'+(list.length ? list.map(r=>'<div class="list-item"><span class="material-symbols-outlined" style="color:var(--danger);">flag</span>'+
+      '<div class="meta"><div class="title">'+esc((ENUMS.reportReasons.find(x=>x.value===r.reason)||{}).label||r.reason)+'</div><div class="sub">'+esc(r.targetType||'')+' · '+timeAgo(r.createdAt)+' · status: '+esc(r.status||'PENDING')+'</div></div>'+
+      '<div class="actions"><button class="btn btn-sm btn-primary" data-review-report="'+r.id+'" data-decision="REVIEWED">Revisar</button><button class="btn btn-sm btn-ghost" data-review-report="'+r.id+'" data-decision="DISMISSED">Descartar</button></div></div>').join('') : '<div class="empty">Nenhuma denúncia.</div>')+'</div>';
+    $$('[data-review-report]', el).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/admin/reports/'+b.getAttribute('data-review-report')+'/review',{method:'POST', body:{status:b.getAttribute('data-decision')}}); toast('Denúncia atualizada.','success'); loadAdminReports(); }catch(e){toast(e.message,'error');} }));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+async function loadAdminModeration(){
+  const el = $('#admin-panel'); el.innerHTML = SPIN;
+  try{
+    const data = await api('/admin/moderation-logs');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = '<div class="card">'+(list.length ? list.map(m=>'<div class="list-item"><span class="material-symbols-outlined" style="color:var(--warning);">gpp_maybe</span>'+
+      '<div class="meta"><div class="title">'+esc(m.violationType||m.type||'Infração')+'</div><div class="sub">Usuário '+esc(m.userId||m.username||'')+' · '+timeAgo(m.createdAt)+'</div></div></div>').join('') : '<div class="empty">Nenhum registro de moderação.</div>')+'</div>';
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+async function loadAdminMissions(){
+  const el = $('#admin-panel');
+  el.innerHTML = '<div class="row between" style="margin-bottom:12px;"><h4>Templates de missão</h4><button class="btn btn-primary btn-sm" id="new-mission-tpl"><span class="material-symbols-outlined">add</span>Novo</button></div><div class="card" id="mission-tpl-list">'+SPIN+'</div>';
+  $('#new-mission-tpl').addEventListener('click', ()=>missionTplModal(null));
+  loadMissionTplList();
+}
+async function loadMissionTplList(){
+  const el = $('#mission-tpl-list'); if(!el) return;
+  try{
+    const data = await api('/admin/missions/templates');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(t=>'<div class="list-item"><span class="material-symbols-outlined" style="color:'+(t.active?'var(--mint-700)':'var(--muted)')+';">military_tech</span>'+
+      '<div class="meta"><div class="title">'+esc(t.title)+'</div><div class="sub">'+esc(t.category||'')+' · +'+(t.xpReward??0)+' XP'+(t.active===false?' · inativo':'')+'</div></div>'+
+      '<div class="actions"><button class="btn-icon" data-edit-tpl="'+t.id+'"><span class="material-symbols-outlined">edit</span></button><button class="btn-icon" data-del-tpl="'+t.id+'"><span class="material-symbols-outlined">delete</span></button></div></div>').join('') : '<div class="empty">Nenhum template.</div>';
+    $$('[data-edit-tpl]', el).forEach(b=>b.addEventListener('click', ()=>{ const t = list.find(x=>String(x.id)===b.getAttribute('data-edit-tpl')); missionTplModal(t); }));
+    $$('[data-del-tpl]', el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Desativar template','O template será desativado (histórico é preservado).', async ()=>{ try{ await api('/admin/missions/templates/'+b.getAttribute('data-del-tpl'),{method:'DELETE'}); toast('Template desativado.','success'); loadMissionTplList(); }catch(e){toast(e.message,'error');} }, 'Desativar')));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function missionTplModal(existing){
+  openModal('<h3 style="margin-bottom:16px;padding-right:24px;">'+(existing?'Editar template':'Novo template')+'</h3><form id="tpl-form">'+
+    '<div class="field"><label>Título</label><input type="text" name="title" required value="'+esc(existing?.title||'')+'"></div>'+
+    '<div class="field"><label>Categoria</label><input type="text" name="category" value="'+esc(existing?.category||'')+'"></div>'+
+    '<div class="field"><label>Descrição</label><textarea name="description">'+esc(existing?.description||'')+'</textarea></div>'+
+    '<div class="field"><label>XP de recompensa</label><input type="number" name="xpReward" value="'+(existing?.xpReward??10)+'"></div>'+
+    '<button class="btn btn-primary btn-block" type="submit">Salvar</button></form>');
+  $('#tpl-form').addEventListener('submit', async (e)=>{
+    e.preventDefault(); const fd=new FormData(e.target);
+    const body = {title:fd.get('title'), category:fd.get('category'), description:fd.get('description'), xpReward:Number(fd.get('xpReward'))};
+    try{ if(existing) await api('/admin/missions/templates/'+existing.id,{method:'PUT',body}); else await api('/admin/missions/templates',{method:'POST',body}); toast('Salvo!','success'); closeModal(); loadMissionTplList(); }catch(err){ toast(err.message,'error'); }
+  });
+}
+async function loadAdminShop(){
+  const el = $('#admin-panel');
+  el.innerHTML = '<div class="row between" style="margin-bottom:12px;"><h4>Itens da loja</h4><button class="btn btn-primary btn-sm" id="new-shop-item"><span class="material-symbols-outlined">add</span>Novo</button></div><div class="grid grid-3" id="admin-shop-list">'+SPIN+'</div>';
+  $('#new-shop-item').addEventListener('click', ()=>shopItemModal(null));
+  loadAdminShopList();
+}
+async function loadAdminShopList(){
+  const el = $('#admin-shop-list'); if(!el) return;
+  try{
+    const data = await api('/admin/shop/items');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = list.length ? list.map(i=>'<div class="card"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span><div style="font-weight:700;margin:8px 0 3px;">'+esc(i.name)+'</div><div class="muted" style="margin-bottom:10px;">'+i.price+' XP'+(i.active===false?' · inativo':'')+'</div>'+
+      '<div class="row gap-8"><button class="btn btn-sm btn-ghost" data-edit-shop="'+i.id+'">Editar</button><button class="btn btn-sm btn-danger" data-del-shop="'+i.id+'">Desativar</button></div></div>').join('') : '<div class="empty">Nenhum item cadastrado.</div>';
+    $$('[data-edit-shop]', el).forEach(b=>b.addEventListener('click', ()=>{ const i = list.find(x=>String(x.id)===b.getAttribute('data-edit-shop')); shopItemModal(i); }));
+    $$('[data-del-shop]', el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Desativar item','O item deixa de aparecer na loja (quem já possui mantém).', async ()=>{ try{ await api('/admin/shop/items/'+b.getAttribute('data-del-shop'),{method:'DELETE'}); toast('Item desativado.','success'); loadAdminShopList(); }catch(e){toast(e.message,'error');} }, 'Desativar')));
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+function shopItemModal(existing){
+  openModal('<h3 style="margin-bottom:16px;padding-right:24px;">'+(existing?'Editar item':'Novo item')+'</h3><form id="shop-item-form">'+
+    '<div class="field"><label>Nome</label><input type="text" name="name" required value="'+esc(existing?.name||'')+'"></div>'+
+    '<div class="field"><label>Tipo</label><select name="type">'+Object.entries(ENUMS.shopItemTypes).map(([v,l])=>'<option value="'+v+'" '+(existing?.type===v?'selected':'')+'>'+l+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>Descrição</label><textarea name="description">'+esc(existing?.description||'')+'</textarea></div>'+
+    '<div class="field"><label>Preço (XP)</label><input type="number" name="price" value="'+(existing?.price??50)+'"></div>'+
+    '<button class="btn btn-primary btn-block" type="submit">Salvar</button></form>');
+  $('#shop-item-form').addEventListener('submit', async (e)=>{
+    e.preventDefault(); const fd=new FormData(e.target);
+    const body = {name:fd.get('name'), type:fd.get('type'), description:fd.get('description'), price:Number(fd.get('price'))};
+    try{ if(existing) await api('/admin/shop/items/'+existing.id,{method:'PUT',body}); else await api('/admin/shop/items',{method:'POST',body}); toast('Salvo!','success'); closeModal(); loadAdminShopList(); }catch(err){ toast(err.message,'error'); }
+  });
+}
+async function loadAdminLogs(){
+  const el = $('#admin-panel'); el.innerHTML = SPIN;
+  try{
+    const data = await api('/admin/logs');
+    const list = Array.isArray(data)?data:(data?.content||[]);
+    el.innerHTML = '<div class="card">'+(list.length ? list.map(l=>'<div class="list-item"><span class="material-symbols-outlined">history</span><div class="meta"><div class="title">'+esc(l.action||l.type)+'</div><div class="sub">por '+esc(l.adminName||l.adminId||'')+' · '+fmtDateTime(l.createdAt)+'</div></div></div>').join('') : '<div class="empty">Nenhum log ainda.</div>')+'</div>';
+  }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
+}
+
+/* =========================================================
+   WEBSOCKET (STOMP sobre SockJS) — Fase 4
+   Conecta em /ws, autentica no frame CONNECT com Bearer token.
+   Se a conexão falhar, o app inteiro continua funcionando via
+   fallback REST (cada tela de chat já trata os dois casos).
+   ========================================================= */
+function connectSocket(){
+  if(typeof SockJS === 'undefined' || typeof StompJs === 'undefined'){
+    console.warn('SockJS/Stomp não carregados — chat funcionará apenas via REST.');
+    return;
+  }
+  if(state.ws.client) return;
+  try{
+    const client = new StompJs.Client({
+      webSocketFactory: () => new SockJS(CONFIG.WS_URL),
+      connectHeaders: { Authorization: 'Bearer ' + state.accessToken },
+      reconnectDelay: 6000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      onConnect: () => {
+        state.ws.connected = true;
+        const dot = $('#conn-dot'); if(dot){ dot.classList.add('on'); dot.title='Conectado em tempo real'; }
+        try{
+          state.ws.subs['notif'] = client.subscribe('/user/queue/notifications', (frame)=>{
+            try{
+              const n = JSON.parse(frame.body);
+              state.notifUnread = (state.notifUnread||0) + 1;
+              refreshNotifCount();
+              toast(n.title || n.message || 'Nova notificação', 'info');
+            }catch(e){}
+          });
+        }catch(e){}
+        if(state.route==='chat' && chatState.currentRoomId) subscribeRoom(chatState.currentRoomId);
+      },
+      onDisconnect: () => { state.ws.connected = false; const dot = $('#conn-dot'); if(dot){ dot.classList.remove('on'); dot.title='Modo offline (REST)'; } },
+      onStompError: () => { state.ws.connected = false; },
+      onWebSocketError: () => { state.ws.connected = false; }
+    });
+    client.activate();
+    state.ws.client = client;
+  }catch(e){ console.warn('Falha ao iniciar WebSocket, seguindo em modo REST.', e); }
+}
+function disconnectSocket(){
+  if(state.ws.client){ try{ state.ws.client.deactivate(); }catch(e){} }
+  state.ws.client = null; state.ws.connected = false; state.ws.subs = {};
+}
+
+/* =========================================================
+   BOOTSTRAP
+   ========================================================= */
+document.addEventListener('click', (e)=>{
+  const navEl = e.target.closest('[data-nav]');
+  if(navEl){ e.preventDefault(); navigate(navEl.getAttribute('data-nav')); }
+});
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderRoot();
+});
+setInterval(()=>{ if(state.user) refreshNotifCount(); }, 45000);
+</script>
+</body>
+</html>
