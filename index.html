@@ -174,11 +174,12 @@ input,textarea,select{font-family:inherit;}
 .conn-dot.on{background:#4CAF7D;}
 
 /* ---------- breathing ---------- */
-.breathe-stage{display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px 10px;}
-.breathe-circle{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--mint-soft),var(--mint));display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--ink);font-weight:700;transition:transform 1s ease-in-out;box-shadow:0 0 0 10px var(--mint-pale);}
-.breathe-circle .phase{font-size:13px;letter-spacing:.05em;text-transform:uppercase;}
-.breathe-circle .secs{font-size:30px;}
-.breathe-scale-in{transform:scale(1.35);} .breathe-scale-out{transform:scale(.78);} .breathe-scale-hold{transform:scale(1.1);}
+.breathe-full{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;min-height:calc(100vh - var(--topbar-h) - 130px);padding:20px;}
+.breathe-full-top{align-self:flex-start;}
+.breathe-circle-lg{width:250px;height:250px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--mint-soft),var(--mint));display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--ink);font-weight:700;box-shadow:0 0 0 16px var(--mint-pale);transition-property:transform;transition-timing-function:ease-in-out;will-change:transform;}
+.breathe-circle-lg .phase{font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.breathe-circle-lg .secs{font-size:46px;}
+@media (max-width:640px){ .breathe-circle-lg{width:190px;height:190px;} .breathe-circle-lg .secs{font-size:32px;} }
 
 /* ---------- misc widgets ---------- */
 #toast-container{position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;}
@@ -291,6 +292,12 @@ function timeAgo(d){
 }
 function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 function levelXpNeeded(level){ return 100 * level * level; } // 100 * N^2, Fase 3
+/* Helpers defensivos — o backend às vezes usa nomes de campo diferentes do que
+   o README documenta. Em vez de travar com "undefined" na URL, tentamos as
+   variações mais comuns. Se algo ainda mostrar undefined/"?", me manda o DTO
+   real do endpoint em questão que eu troco pelo nome certo, sem chute. */
+function userId(u){ return u?.id ?? u?.userId ?? u?.uuid ?? u?.userUuid ?? u?.publicId; }
+function itemPrice(i){ return i?.price ?? i?.cost ?? i?.xpCost ?? i?.xpPrice ?? i?.value ?? '?'; }
 
 /* ---------- TOASTS ---------- */
 function toast(msg, type='info', ms=4200){
@@ -333,12 +340,19 @@ let refreshPromise = null;
 async function apiRaw(path, opts={}){
   const headers = Object.assign({}, opts.headers||{});
   const isForm = opts.body instanceof FormData;
-  if(!isForm && opts.body) headers['Content-Type'] = 'application/json';
+  const method = (opts.method || 'GET').toUpperCase();
+  let body = opts.body;
+  // Muitos endpoints Spring com @RequestBody rejeitam POST/PATCH/PUT sem corpo
+  // (400 "required request body is missing"). Mandamos {} por padrão nesses casos.
+  if(!isForm && body === undefined && method !== 'GET' && method !== 'HEAD' && method !== 'DELETE'){
+    body = {};
+  }
+  if(!isForm && body !== undefined) headers['Content-Type'] = 'application/json';
   if(state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
   const res = await fetch(CONFIG.API_BASE + path, {
-    method: opts.method || 'GET',
+    method,
     headers,
-    body: isForm ? opts.body : (opts.body ? JSON.stringify(opts.body) : undefined)
+    body: isForm ? opts.body : (body !== undefined ? JSON.stringify(body) : undefined)
   });
   return res;
 }
@@ -921,7 +935,7 @@ function wire_friends(){
       const data = await api('/users/search?query='+encodeURIComponent(q));
       const users = Array.isArray(data)?data:(data?.content||[]);
       box.innerHTML = '<div class="card" style="margin-top:10px;">'+(users.length?users.map(u=>
-        friendRow(u, '<button class="btn btn-primary btn-sm" data-add-friend="'+u.id+'">Adicionar</button>')
+        friendRow(u, '<button class="btn btn-primary btn-sm" data-add-friend="'+userId(u)+'">Adicionar</button>')
       ).join(''):'<div class="empty">Nenhum usuário encontrado.</div>')+'</div>';
       $$('[data-add-friend]', box).forEach(b=>b.addEventListener('click', async ()=>{
         try{ await api('/friends/requests/'+b.getAttribute('data-add-friend'), {method:'POST'}); toast('Solicitação enviada!','success'); b.disabled=true; b.textContent='Enviado'; }catch(e){ toast(e.message,'error'); }
@@ -950,7 +964,7 @@ async function loadFriendsPanel(){
       $$('[data-cancel]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-cancel'),{method:'DELETE'}); toast('Solicitação cancelada.','info'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
     } else {
       const data = await api('/recommendations/friends'); const list = Array.isArray(data)?data:(data?.content||[]);
-      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-add-friend2="'+f.id+'">Adicionar</button>')).join('') : '<div class="empty">Sem sugestões no momento — escolha alguns interesses.</div>';
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-add-friend2="'+userId(f)+'">Adicionar</button>')).join('') : '<div class="empty">Sem sugestões no momento — escolha alguns interesses.</div>';
       $$('[data-add-friend2]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-add-friend2'),{method:'POST'}); toast('Solicitação enviada!','success'); b.disabled=true; b.textContent='Enviado'; }catch(e){toast(e.message,'error');} }));
     }
   }catch(e){ panel.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
@@ -1002,26 +1016,36 @@ function moodChartSVG(hist){
 }
 
 /* =========================================================
-   VIEW: BREATHING
+   VIEW: BREATHING (tela cheia durante a sessão)
    ========================================================= */
-const breathState = { technique:null, running:false, phaseIdx:0, timer:null };
+const breathState = { technique:null, running:false, timer:null, list:null, sessionMode:false };
 function ViewBreathing(){
-  return '<div class="view-header"><h2><span class="material-symbols-outlined">air</span>Respiração Guiada</h2><p>Escolha uma técnica e siga o ritmo do círculo.</p></div>'+
-  '<div class="grid grid-2" style="align-items:start;">'+
-    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">self_improvement</span>Técnicas</div><div id="breathing-list">'+SPIN+'</div></div>'+
-    '<div class="card"><div class="card-title"><span class="material-symbols-outlined">insights</span>Sessão</div><div id="breathing-session"><div class="empty"><span class="material-symbols-outlined">air</span>Escolha uma técnica ao lado.</div></div>'+
-      '<div class="divider"></div><div class="card-title" style="font-size:13px;"><span class="material-symbols-outlined" style="font-size:18px;">bar_chart</span>Estatísticas</div><div id="breathing-stats" style="font-size:13px;">'+SPIN+'</div></div>'+
+  if(breathState.sessionMode && breathState.technique) return renderBreathingSession(breathState.technique);
+  return '<div class="view-header"><h2><span class="material-symbols-outlined">air</span>Respiração Guiada</h2><p>Escolha uma técnica para começar uma sessão em tela cheia.</p></div>'+
+  '<div class="card"><div class="card-title"><span class="material-symbols-outlined">self_improvement</span>Técnicas</div><div id="breathing-list">'+SPIN+'</div></div>'+
+  '<div class="card" style="margin-top:16px;"><div class="card-title" style="font-size:14px;"><span class="material-symbols-outlined" style="font-size:19px;">bar_chart</span>Estatísticas</div><div id="breathing-stats" style="font-size:13px;">'+SPIN+'</div></div>';
+}
+function renderBreathingSession(t){
+  const inhale = t.inhaleSeconds||t.inhale||4;
+  return '<div class="breathe-full">'+
+    '<div class="breathe-full-top"><button class="btn btn-ghost btn-sm" id="breathe-back"><span class="material-symbols-outlined">arrow_back</span>Voltar às técnicas</button></div>'+
+    '<h3 style="text-align:center;">'+esc(t.name)+'</h3>'+
+    '<div class="breathe-circle-lg" id="breathe-circle" style="transition-duration:0s;transform:scale(1);"><span class="phase" id="breathe-phase">Pronto</span><span class="secs" id="breathe-secs">'+inhale+'</span></div>'+
+    '<button class="btn btn-primary" id="breathe-start" style="min-width:170px;">Começar</button>'+
   '</div>';
 }
 function wire_breathing(){
+  if(breathState.sessionMode && breathState.technique){ wireBreathingSession(breathState.technique); return; }
   loadInto('breathing-list', ()=>api('/breathing/techniques'), (list)=>{
-    list = Array.isArray(list)?list:(list?.content||[]);
-    return list.map(t=>'<div class="list-item" data-pick-technique="'+t.id+'" style="cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--mint-700);">air</span><div class="meta"><div class="title">'+esc(t.name)+'</div><div class="sub">'+esc(t.description||(t.inhaleSeconds+'s inspirar · '+t.holdSeconds+'s segurar · '+t.exhaleSeconds+'s expirar'))+'</div></div><span class="material-symbols-outlined">chevron_right</span></div>').join('') || '<div class="empty">Nenhuma técnica encontrada.</div>';
+    breathState.list = Array.isArray(list)?list:(list?.content||[]);
+    return breathState.list.map(t=>'<div class="list-item" data-pick-technique="'+t.id+'" style="cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--mint-700);">air</span><div class="meta"><div class="title">'+esc(t.name)+'</div><div class="sub">'+esc(t.description||(t.inhaleSeconds+'s inspirar · '+t.holdSeconds+'s segurar · '+t.exhaleSeconds+'s expirar'))+'</div></div><span class="material-symbols-outlined">chevron_right</span></div>').join('') || '<div class="empty">Nenhuma técnica encontrada.</div>';
   }, (list)=>{
-    list = Array.isArray(list)?list:(list?.content||[]);
+    breathState.list = Array.isArray(list)?list:(list?.content||[]);
     $$('[data-pick-technique]').forEach(el=>el.addEventListener('click', ()=>{
-      const t = list.find(x=>String(x.id)===el.getAttribute('data-pick-technique'));
-      startBreathing(t);
+      const t = breathState.list.find(x=>String(x.id)===el.getAttribute('data-pick-technique'));
+      breathState.technique = t; breathState.sessionMode = true; breathState.running = false;
+      clearInterval(breathState.timer);
+      rerenderContent();
     }));
   });
   loadInto('breathing-stats', ()=>api('/breathing/stats').catch(()=>null), (s)=>{
@@ -1029,27 +1053,51 @@ function wire_breathing(){
     return '<div class="stat-trio"><div><div class="num" style="font-size:18px;">'+(s.totalSessions??s.sessions??0)+'</div><div class="lbl">Sessões</div></div><div><div class="num" style="font-size:18px;">'+(s.totalMinutes??s.minutes??0)+'</div><div class="lbl">Minutos</div></div><div><div class="num" style="font-size:18px;">'+(s.favoriteTechnique?'★':(s.byTechnique?Object.keys(s.byTechnique).length:0))+'</div><div class="lbl">Técnicas usadas</div></div></div>';
   });
 }
-function startBreathing(t){
-  clearInterval(breathState.timer); breathState.technique=t; breathState.running=false;
+function wireBreathingSession(t){
+  $('#breathe-back').addEventListener('click', ()=>{
+    clearInterval(breathState.timer); breathState.running=false; breathState.sessionMode=false; breathState.technique=null;
+    rerenderContent();
+  });
   const inhale = t.inhaleSeconds||t.inhale||4, hold1 = t.holdSeconds||t.hold||4, exhale = t.exhaleSeconds||t.exhale||4, hold2 = t.hold2Seconds||t.pause||0;
-  const phases = [{n:'Inalar',s:inhale,cls:'breathe-scale-in'},{n:'Segurar',s:hold1,cls:'breathe-scale-hold'},{n:'Exalar',s:exhale,cls:'breathe-scale-out'}];
-  if(hold2>0) phases.push({n:'Pausa',s:hold2,cls:'breathe-scale-hold'});
-  const el = $('#breathing-session');
-  el.innerHTML = '<div class="breathe-stage"><h4 style="margin-bottom:2px;">'+esc(t.name)+'</h4>'+
-    '<div class="breathe-circle" id="breathe-circle"><span class="phase" id="breathe-phase">Pronto</span><span class="secs" id="breathe-secs">'+phases[0].s+'</span></div>'+
-    '<button class="btn btn-primary" id="breathe-start">Começar</button></div>';
+  const BASE = 1, PEAK = 1.4;
+  // O círculo cresce suavemente durante "Inspire" (até PEAK), fica parado durante "Segure"
+  // (mesmo valor de escala = sem transição visível = realmente "para"), e murcha suavemente
+  // durante "Expire" — cada transição dura exatamente o tempo da fase (não um valor fixo).
+  const phases = [
+    {n:'Inspire', s:inhale, scale:PEAK},
+    {n:'Segure',  s:hold1,  scale:PEAK},
+    {n:'Expire',  s:exhale, scale:BASE}
+  ];
+  if(hold2>0) phases.push({n:'Segure', s:hold2, scale:BASE});
+
+  const circle = $('#breathe-circle'), phaseLbl=$('#breathe-phase'), secLbl=$('#breathe-secs');
+  let pIdx = 0, secLeft = phases[0].s;
+
+  function applyPhase(idx){
+    const p = phases[idx];
+    phaseLbl.textContent = p.n; secLbl.textContent = p.s;
+    circle.style.transitionDuration = p.s + 's';
+    circle.style.transform = 'scale(' + p.scale + ')';
+  }
+
   $('#breathe-start').addEventListener('click', function(){
-    if(breathState.running){ clearInterval(breathState.timer); breathState.running=false; this.textContent='Continuar'; return; }
-    breathState.running = true; this.textContent='Pausar';
-    let pIdx=0, secLeft=phases[0].s;
-    const circle = $('#breathe-circle'), phaseLbl=$('#breathe-phase'), secLbl=$('#breathe-secs');
-    circle.className='breathe-circle '+phases[0].cls; phaseLbl.textContent=phases[0].n; secLbl.textContent=secLeft;
+    if(breathState.running){
+      clearInterval(breathState.timer); breathState.running = false; this.textContent = 'Continuar';
+      // congela o círculo exatamente onde estiver, mesmo se a transição CSS ainda estivesse rolando
+      const frozen = getComputedStyle(circle).transform;
+      circle.style.transitionDuration = '0s'; circle.style.transform = frozen;
+      return;
+    }
+    breathState.running = true; this.textContent = 'Pausar';
+    applyPhase(pIdx);
     breathState.timer = setInterval(()=>{
       secLeft--;
-      if(secLeft<=0){ pIdx=(pIdx+1)%phases.length; secLeft=phases[pIdx].s; circle.className='breathe-circle '+phases[pIdx].cls; phaseLbl.textContent=phases[pIdx].n;
-        if(pIdx===0){ completeBreathingCycle(t); }
+      if(secLeft <= 0){
+        pIdx = (pIdx+1) % phases.length; secLeft = phases[pIdx].s; applyPhase(pIdx);
+        if(pIdx===0) completeBreathingCycle(t);
+      } else {
+        secLbl.textContent = secLeft;
       }
-      secLbl.textContent = secLeft;
     }, 1000);
   });
 }
@@ -1220,7 +1268,7 @@ function ViewInterests(){
 function wire_interests(){
   loadInto('interests-panel', ()=>api('/interests'), (data)=>{
     const list = Array.isArray(data)?data:(data?.content||[]);
-    interestSelection = new Set(list.filter(i=>i.selected).map(i=>i.id));
+    interestSelection = new Set(list.filter(i=>i.selected ?? i.isSelected ?? i.chosen ?? i.mine).map(i=>i.id));
     return '<div class="row gap-8" style="flex-wrap:wrap;">'+list.map(i=>
       '<button class="tab" data-toggle-interest="'+i.id+'" style="border:1.5px solid '+(interestSelection.has(i.id)?'var(--mint-700)':'var(--border)')+';background:'+(interestSelection.has(i.id)?'var(--mint-soft)':'#fff')+';">'+esc(i.name||i.label)+(i.hasRoom||i.roomId?' <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">tag</span>':'')+'</button>'
     ).join('')+'</div><button class="btn btn-primary" id="save-interests" style="margin-top:18px;">Salvar interesses</button>';
@@ -1316,7 +1364,7 @@ function wire_shop(){
       return list.map(i=>'<div class="card"><div class="row between"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span>'+(i.owned?'<span class="pill" style="background:var(--mint-soft);">Possui</span>':'')+'</div>'+
         '<div style="font-weight:700;margin:10px 0 3px;">'+esc(i.name)+'</div><div class="muted" style="margin-bottom:12px;">'+esc(i.description||'')+'</div>'+
         (i.owned ? '<button class="btn btn-ghost btn-block" disabled>Já possui</button>' :
-        '<button class="btn btn-primary btn-block" data-buy-item="'+i.id+'">Comprar · '+i.price+' XP</button>')+'</div>').join('');
+        '<button class="btn btn-primary btn-block" data-buy-item="'+i.id+'">Comprar · '+itemPrice(i)+' XP</button>')+'</div>').join('');
     }, ()=>{
       $$('[data-buy-item]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Confirmar compra','Deseja gastar XP da sua carteira neste item?',async ()=>{
         try{ await api('/shop/items/'+b.getAttribute('data-buy-item')+'/purchase',{method:'POST'}); toast('Item comprado!','success'); await fetchMe(); rerenderContent(); }catch(e){ toast(e.message,'error'); }
@@ -1528,7 +1576,7 @@ async function loadAdminShopList(){
   try{
     const data = await api('/admin/shop/items');
     const list = Array.isArray(data)?data:(data?.content||[]);
-    el.innerHTML = list.length ? list.map(i=>'<div class="card"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span><div style="font-weight:700;margin:8px 0 3px;">'+esc(i.name)+'</div><div class="muted" style="margin-bottom:10px;">'+i.price+' XP'+(i.active===false?' · inativo':'')+'</div>'+
+    el.innerHTML = list.length ? list.map(i=>'<div class="card"><span class="pill">'+(ENUMS.shopItemTypes[i.type]||i.type)+'</span><div style="font-weight:700;margin:8px 0 3px;">'+esc(i.name)+'</div><div class="muted" style="margin-bottom:10px;">'+itemPrice(i)+' XP'+(i.active===false?' · inativo':'')+'</div>'+
       '<div class="row gap-8"><button class="btn btn-sm btn-ghost" data-edit-shop="'+i.id+'">Editar</button><button class="btn btn-sm btn-danger" data-del-shop="'+i.id+'">Desativar</button></div></div>').join('') : '<div class="empty">Nenhum item cadastrado.</div>';
     $$('[data-edit-shop]', el).forEach(b=>b.addEventListener('click', ()=>{ const i = list.find(x=>String(x.id)===b.getAttribute('data-edit-shop')); shopItemModal(i); }));
     $$('[data-del-shop]', el).forEach(b=>b.addEventListener('click', ()=>confirmModal('Desativar item','O item deixa de aparecer na loja (quem já possui mantém).', async ()=>{ try{ await api('/admin/shop/items/'+b.getAttribute('data-del-shop'),{method:'DELETE'}); toast('Item desativado.','success'); loadAdminShopList(); }catch(e){toast(e.message,'error');} }, 'Desativar')));
