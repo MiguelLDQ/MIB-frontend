@@ -695,7 +695,7 @@ function modCard(icon,label,route){
 }
 function wire_dashboard(){
   loadInto('dash-mood', ()=>api('/mood/today').catch(()=>null), (mood)=>{
-    const sel = mood ? mood.level : null;
+    const sel = mood ? (mood.moodLevel ?? mood.level) : null;
     return '<div class="mood-picker">'+ENUMS.mood.map(m=>
       '<button class="mood-opt'+(sel===m.value?' selected':'')+'" data-mood="'+m.value+'">'+m.emoji+'<small>'+m.label+'</small></button>'
     ).join('')+'</div>'+(sel?'<p class="hint" style="margin-top:10px;">Você já registrou seu humor hoje — clique para atualizar.</p>':'');
@@ -704,10 +704,10 @@ function wire_dashboard(){
   if(moodC) moodC.addEventListener('click', async (e)=>{
     const btn = e.target.closest('[data-mood]'); if(!btn) return;
     try{
-      await api('/mood', {method:'POST', body:{level: btn.getAttribute('data-mood')}});
+      await api('/mood', {method:'POST', body:{moodLevel: btn.getAttribute('data-mood')}});
       toast('Humor registrado!','success');
       loadInto('dash-mood', ()=>api('/mood/today').catch(()=>null), (mood)=>{
-        const sel = mood?mood.level:null;
+        const sel = mood?(mood.moodLevel ?? mood.level):null;
         return '<div class="mood-picker">'+ENUMS.mood.map(m=>'<button class="mood-opt'+(sel===m.value?' selected':'')+'" data-mood="'+m.value+'">'+m.emoji+'<small>'+m.label+'</small></button>').join('')+'</div>';
       });
     }catch(err){ toast(err.message,'error'); }
@@ -957,12 +957,12 @@ async function loadFriendsPanel(){
       $$('[data-remove-friend]', panel).forEach(b=>b.addEventListener('click', ()=>confirmModal('Remover amizade','Tem certeza?',async ()=>{ try{ await api('/friends/'+b.getAttribute('data-remove-friend'),{method:'DELETE'}); toast('Amizade removida.','success'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} },'Remover')));
     } else if(friendsState.tab==='incoming'){
       const data = await api('/friends/requests/incoming'); const list = Array.isArray(data)?data:(data?.content||[]);
-      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-accept="'+f.id+'">Aceitar</button><button class="btn btn-ghost btn-sm" data-decline="'+f.id+'">Recusar</button>')).join('') : '<div class="empty">Nenhuma solicitação recebida.</div>';
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-primary btn-sm" data-accept="'+(f.requestId??f.id)+'">Aceitar</button><button class="btn btn-ghost btn-sm" data-decline="'+(f.requestId??f.id)+'">Recusar</button>')).join('') : '<div class="empty">Nenhuma solicitação recebida.</div>';
       $$('[data-accept]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-accept')+'/accept',{method:'POST'}); toast('Amizade aceita!','success'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
       $$('[data-decline]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-decline')+'/decline',{method:'POST'}); toast('Solicitação recusada.','info'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
     } else if(friendsState.tab==='outgoing'){
       const data = await api('/friends/requests/outgoing'); const list = Array.isArray(data)?data:(data?.content||[]);
-      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-ghost btn-sm" data-cancel="'+f.id+'">Cancelar</button>')).join('') : '<div class="empty">Nenhuma solicitação enviada.</div>';
+      panel.innerHTML = list.length ? list.map(f=>friendRow(f, '<button class="btn btn-ghost btn-sm" data-cancel="'+(f.requestId??f.id)+'">Cancelar</button>')).join('') : '<div class="empty">Nenhuma solicitação enviada.</div>';
       $$('[data-cancel]', panel).forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/friends/requests/'+b.getAttribute('data-cancel'),{method:'DELETE'}); toast('Solicitação cancelada.','info'); loadFriendsPanel(); }catch(e){toast(e.message,'error');} }));
     } else {
       const data = await api('/recommendations/friends'); const list = Array.isArray(data)?data:(data?.content||[]);
@@ -984,7 +984,7 @@ function ViewMood(){
 }
 function wire_mood(){
   loadInto('mood-today', ()=>api('/mood/today').catch(()=>null), (m)=>{
-    const sel = m?m.level:null;
+    const sel = m?(m.moodLevel ?? m.level):null;
     return '<div class="mood-picker">'+ENUMS.mood.map(x=>'<button class="mood-opt'+(sel===x.value?' selected':'')+'" data-mood2="'+x.value+'">'+x.emoji+'<small>'+x.label+'</small></button>').join('')+'</div>'+
     '<div class="field" style="margin-top:16px;"><label>Nota (opcional)</label><textarea id="mood-note" placeholder="Um espaço só seu, se quiser escrever.">'+esc(m?.note||'')+'</textarea></div>'+
     '<button class="btn btn-primary" id="mood-save-note">Salvar nota</button>';
@@ -993,10 +993,10 @@ function wire_mood(){
   if(container) container.addEventListener('click', async (e)=>{
     const btn = e.target.closest('[data-mood2]'); const saveBtn = e.target.closest('#mood-save-note');
     if(btn){
-      try{ await api('/mood', {method:'POST', body:{level:btn.getAttribute('data-mood2')}}); toast('Humor registrado.','success'); wire_mood(); }catch(err){ toast(err.message,'error'); }
+      try{ await api('/mood', {method:'POST', body:{moodLevel:btn.getAttribute('data-mood2')}}); toast('Humor registrado.','success'); wire_mood(); }catch(err){ toast(err.message,'error'); }
     } else if(saveBtn){
-      const note = $('#mood-note').value; const level = $('.mood-opt.selected')?.getAttribute('data-mood2');
-      try{ await api('/mood', {method:'POST', body:{level, note}}); toast('Nota salva.','success'); }catch(err){ toast(err.message,'error'); }
+      const note = $('#mood-note').value; const moodLevel = $('.mood-opt.selected')?.getAttribute('data-mood2');
+      try{ await api('/mood', {method:'POST', body:{moodLevel, note}}); toast('Nota salva.','success'); }catch(err){ toast(err.message,'error'); }
     }
   });
   loadInto('mood-history', ()=>api('/mood/history?days=30').catch(()=>[]), (hist)=>{
@@ -1007,7 +1007,7 @@ function wire_mood(){
 }
 function moodChartSVG(hist){
   const order = ENUMS.mood.map(m=>m.value);
-  const pts = hist.slice(-30).map((h,i)=>({x:i, y: order.indexOf(h.level), date:h.date||h.createdAt}));
+  const pts = hist.slice(-30).map((h,i)=>({x:i, y: order.indexOf(h.moodLevel ?? h.level), date:h.date||h.createdAt}));
   const w = 320, h = 130, pad=14;
   const xs = pts.length>1 ? (w-2*pad)/(pts.length-1) : 0;
   const coord = pts.map((p,i)=>[pad+i*xs, h-pad-(p.y/(order.length-1))*(h-2*pad)]);
@@ -1224,7 +1224,7 @@ async function loadAnonFeed(){
 function wireAnonCards(el, list){
   el.querySelectorAll('[data-like-anon]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/anonymous/'+b.getAttribute('data-like-anon')+'/like',{method:'POST'}); loadAnonFeed(); }catch(e){toast(e.message,'error');} }));
   el.querySelectorAll('[data-del-anon]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Remover mensagem','Deseja remover sua mensagem do mar?',async ()=>{ try{ await api('/anonymous/'+b.getAttribute('data-del-anon'),{method:'DELETE'}); toast('Mensagem removida.','success'); loadAnonFeed(); }catch(e){toast(e.message,'error');} },'Remover')));
-  el.querySelectorAll('[data-report-anon]').forEach(b=>b.addEventListener('click', ()=>reportModal('CHAT_MESSAGE_ANON', b.getAttribute('data-report-anon'))));
+  el.querySelectorAll('[data-report-anon]').forEach(b=>b.addEventListener('click', ()=>reportModal('ANONYMOUS_MESSAGE', b.getAttribute('data-report-anon'))));
   el.querySelectorAll('[data-reply-anon]').forEach(b=>b.addEventListener('click', async ()=>{
     const id = b.getAttribute('data-reply-anon'); const box = $('#anon-replies-'+id);
     if(box.dataset.open==='1'){ box.innerHTML=''; box.dataset.open='0'; return; }
