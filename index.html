@@ -944,10 +944,34 @@ function ViewFriends(){
 }
 function friendRow(f, actionsHtml){
   const name = f.displayName || f.name || f.username || f.friendDisplayName;
-  return '<div class="list-item"><div class="avatar">'+esc(initials(name))+'</div>'+
-    '<div class="meta"><div class="title">'+esc(name)+' '+(f.online!==undefined?'<span class="badge-dot'+(f.online?' online':'')+'" style="margin-left:4px;"></span>':'')+'</div>'+
+  const uid = f.friendUserId ?? userId(f);
+  const clickAttr = uid ? ' data-view-profile="'+uid+'" style="cursor:pointer;"' : '';
+  return '<div class="list-item"><div class="avatar"'+clickAttr+'>'+esc(initials(name))+'</div>'+
+    '<div class="meta"'+clickAttr+'><div class="title">'+esc(name)+' '+(f.online!==undefined?'<span class="badge-dot'+(f.online?' online':'')+'" style="margin-left:4px;"></span>':'')+'</div>'+
     '<div class="sub">'+(f.online ? 'Online agora' : (f.lastSeen ? 'Visto '+timeAgo(f.lastSeen) : (f.mutualInterests? f.mutualInterests+' interesses em comum':'@'+esc(f.username||''))))+'</div></div>'+
     '<div class="actions">'+actionsHtml+'</div></div>';
+}
+/* Abre um modal com o perfil público de outro usuário (GET /api/profile/{userId}) */
+function openUserProfileModal(targetUserId){
+  openModal('<div style="padding:30px 0;">'+SPIN+'</div>');
+  api('/profile/'+targetUserId).then(p=>{
+    const name = p.displayName || p.username || 'Usuário';
+    openModal(
+      '<div style="text-align:center;padding-top:6px;">'+
+        '<div class="avatar avatar-lg" style="margin:0 auto 12px;">'+(p.avatarUrl?'<img src="'+esc(p.avatarUrl)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">':esc(initials(name)))+'</div>'+
+        '<h3>'+esc(name)+'</h3>'+
+        ((p.statusMessage||p.status)?'<div class="muted" style="margin-top:2px;">'+esc(p.statusMessage||p.status)+'</div>':'')+
+        '<p style="margin-top:14px;font-size:13.5px;line-height:1.5;color:var(--text);">'+(p.bio?esc(p.bio):'<span class="muted">Este usuário não escreveu uma bio.</span>')+'</p>'+
+        '<div class="stat-trio" style="margin-top:18px;">'+
+          '<div><div class="num" style="font-size:18px;">Nv '+(p.level??'—')+'</div><div class="lbl">Nível</div></div>'+
+          '<div><div class="num" style="font-size:18px;">'+(p.currentLoginStreak??'—')+'</div><div class="lbl">Streak</div></div>'+
+          '<div><div class="num" style="font-size:18px;">'+(p.totalXp??'—')+'</div><div class="lbl">XP</div></div>'+
+        '</div>'+
+      '</div>', {width:'400px'}
+    );
+  }).catch(err=>{
+    openModal('<div class="empty"><span class="material-symbols-outlined">error</span>'+esc(err.message||'Não foi possível carregar o perfil (o perfil pode ser privado).')+'</div>');
+  });
 }
 function wire_friends(){
   const search = $('#friend-search');
@@ -1133,6 +1157,7 @@ async function completeBreathingCycle(t, durationSeconds){
     // mandar corpo vazio causava 400.
     await api('/breathing/techniques/'+t.id+'/complete', {method:'POST', body:{durationSeconds: durationSeconds || (t.inhaleSeconds+t.exhaleSeconds) || 30}});
     toast('Sessão registrada! +XP','success');
+    refreshUserAndTopbar();
   }catch(e){ toast(e.message || 'Não foi possível registrar a sessão.', 'error'); }
 }
 
@@ -1191,7 +1216,7 @@ async function loadTasksList(){
     const data = await api(path);
     const list = Array.isArray(data)?data:(data?.content||[]);
     el.innerHTML = list.length ? list.map(taskCard).join('') : '<div class="empty"><span class="material-symbols-outlined">task_alt</span>Nenhuma tarefa por aqui. Adicione a primeira!</div>';
-    el.querySelectorAll('[data-complete-task]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-complete-task')+'/complete',{method:'PATCH'}); toast('Tarefa concluída! +XP','success'); loadTasksList(); }catch(e){toast(e.message,'error');} }));
+    el.querySelectorAll('[data-complete-task]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-complete-task')+'/complete',{method:'PATCH'}); toast('Tarefa concluída! +XP','success'); loadTasksList(); refreshUserAndTopbar(); }catch(e){toast(e.message,'error');} }));
     el.querySelectorAll('[data-reopen-task]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-reopen-task')+'/reopen',{method:'PATCH'}); toast('Tarefa reaberta.','info'); loadTasksList(); }catch(e){toast(e.message,'error');} }));
     el.querySelectorAll('[data-del-task]').forEach(b=>b.addEventListener('click', ()=>confirmModal('Excluir tarefa','Essa ação não pode ser desfeita.',async ()=>{ try{ await api('/tasks/'+b.getAttribute('data-del-task'),{method:'DELETE'}); toast('Tarefa removida.','success'); loadTasksList(); }catch(e){toast(e.message,'error');} },'Excluir')));
     el.querySelectorAll('[data-edit-task]').forEach(b=>b.addEventListener('click', ()=>{ const t = list.find(x=>String(x.id)===b.getAttribute('data-edit-task')); taskFormModal(t); }));
@@ -1212,9 +1237,9 @@ function wire_tasks(){
       if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">military_tech</span>Nenhuma missão gerada para hoje ainda.</div>';
       return list.map(m=>'<div class="list-item"><span class="material-symbols-outlined" style="color:var(--mint-700);">'+(m.completed?'check_circle':'radio_button_unchecked')+'</span>'+
         '<div class="meta"><div class="title">'+esc(m.title||m.templateName)+'</div><div class="sub">'+esc(m.description||'')+' · +'+(m.xpReward||m.xp||0)+' XP</div></div>'+
-        (m.completed?'<span class="pill">Concluída</span>':'<button class="btn btn-primary btn-sm" data-complete-mission="'+(m.dailyMissionId??m.id)+'">Concluir</button>')+'</div>').join('');
+        (m.completed?'<span class="pill">Concluída</span>':'<button class="btn btn-primary btn-sm" data-complete-mission="'+m.missionId+'">Concluir</button>')+'</div>').join('');
     }, ()=>{
-      $$('[data-complete-mission]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/missions/daily/'+b.getAttribute('data-complete-mission')+'/complete',{method:'POST'}); toast('Missão concluída! +XP','success'); rerenderContent(); }catch(e){toast(e.message,'error');} }));
+      $$('[data-complete-mission]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/missions/daily/'+b.getAttribute('data-complete-mission')+'/complete',{method:'POST'}); toast('Missão concluída! +XP','success'); rerenderContent(); refreshUserAndTopbar(); }catch(e){toast(e.message,'error');} }));
     });
   }
 }
@@ -1347,6 +1372,25 @@ async function loadNotifList(){
     el.querySelectorAll('[data-mark-read]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/notifications/'+b.getAttribute('data-mark-read')+'/read',{method:'PATCH'}); refreshNotifCount(); loadNotifList(); }catch(e){toast(e.message,'error');} }));
   }catch(e){ el.innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; }
 }
+/* Chamado depois de qualquer ação que dá XP (tarefa, missão, respiração, etc.)
+   Busca o perfil atualizado e só re-pinta o chip de XP no topo — sem recarregar
+   a tela inteira, então não perde o estado da view atual. */
+async function refreshUserAndTopbar(){
+  await fetchMe();
+  const u = state.user||{};
+  const level = u.level ?? u.currentLevel ?? 1;
+  const totalXp = u.totalXp ?? u.xp ?? 0;
+  const xpNeeded = levelXpNeeded(level);
+  const prevFloor = level>1 ? levelXpNeeded(level-1) : 0;
+  const pct = Math.max(3, Math.min(100, Math.round(((totalXp-prevFloor)/(xpNeeded-prevFloor||1))*100)));
+  const chip = $('.xp-chip');
+  if(chip){
+    chip.title = 'Nível '+level+' — '+totalXp+' XP';
+    const badge = chip.querySelector('.lvl-badge'); if(badge) badge.textContent = 'Nv '+level;
+    const bar = chip.querySelector('.xp-bar-mini > div'); if(bar) bar.style.width = pct+'%';
+    const xt = chip.querySelector('.xp-text'); if(xt) xt.textContent = totalXp+' XP';
+  }
+}
 async function refreshNotifCount(){
   try{ const r = await api('/notifications/unread-count'); state.notifUnread = r?.count ?? r?.unreadCount ?? r ?? 0; const dot = $('.notif-dot'); const nb = $('#notif-btn');
     if(nb){ const old = nb.querySelector('.notif-dot'); if(old) old.remove(); if(state.notifUnread>0) nb.insertAdjacentHTML('beforeend', '<span class="notif-dot">'+(state.notifUnread>99?'99+':state.notifUnread)+'</span>'); }
@@ -1452,8 +1496,8 @@ function ViewProfile(){
       '<form id="profile-form">'+
         '<div class="field"><label>Nome de exibição</label><input type="text" name="displayName" value="'+esc(u.displayName||'')+'"></div>'+
         '<div class="field"><label>Bio</label><textarea name="bio" placeholder="Conte um pouco sobre você...">'+esc(u.bio||'')+'</textarea></div>'+
-        '<div class="field"><label>Status</label><input type="text" name="status" value="'+esc(u.status||'')+'" placeholder="Ex: focado nos estudos"></div>'+
-        '<div class="field"><label>Visibilidade do perfil</label><select name="visibility"><option value="PUBLIC" '+(u.visibility==='PUBLIC'?'selected':'')+'>Público</option><option value="PRIVATE" '+(u.visibility==='PRIVATE'?'selected':'')+'>Privado (só amigos)</option></select></div>'+
+        '<div class="field"><label>Status</label><input type="text" name="statusMessage" value="'+esc(u.statusMessage||u.status||'')+'" placeholder="Ex: focado nos estudos"></div>'+
+        '<div class="field"><label>Visibilidade do perfil</label><select name="isPublic"><option value="true" '+((u.isPublic??u.public)!==false?'selected':'')+'>Público</option><option value="false" '+((u.isPublic??u.public)===false?'selected':'')+'>Privado (só amigos)</option></select></div>'+
         '<button class="btn btn-primary" type="submit">Salvar alterações</button>'+
       '</form></div>'+
     '<div>'+
@@ -1469,7 +1513,7 @@ function wire_profile(){
     e.preventDefault(); const fd = new FormData(e.target); const btn = e.target.querySelector('button');
     btn.disabled = true;
     try{
-      const body = {displayName:fd.get('displayName'), bio:fd.get('bio'), status:fd.get('status'), visibility:fd.get('visibility')};
+      const body = {displayName:fd.get('displayName'), bio:fd.get('bio'), statusMessage:fd.get('statusMessage'), isPublic: fd.get('isPublic')==='true'};
       await api('/profile/me', {method:'PUT', body});
       await fetchMe(); toast('Perfil atualizado!','success'); rerenderContent();
     }catch(err){ toast(err.message,'error'); } finally{ btn.disabled=false; }
@@ -1685,7 +1729,9 @@ function disconnectSocket(){
    ========================================================= */
 document.addEventListener('click', (e)=>{
   const navEl = e.target.closest('[data-nav]');
-  if(navEl){ e.preventDefault(); navigate(navEl.getAttribute('data-nav')); }
+  if(navEl){ e.preventDefault(); navigate(navEl.getAttribute('data-nav')); return; }
+  const profEl = e.target.closest('[data-view-profile]');
+  if(profEl){ e.preventDefault(); openUserProfileModal(profEl.getAttribute('data-view-profile')); }
 });
 document.addEventListener('DOMContentLoaded', ()=>{
   renderRoot();
