@@ -867,13 +867,35 @@ function wire_chat(){
 }
 async function loadDirectRoomList(){
   const el = $('#chat-room-list'); if(!el) return;
+  el.innerHTML = SPIN;
   try{
-    const list = await api('/chat/direct');
-    const rooms = Array.isArray(list)?list:(list?.content||[]);
-    el.innerHTML = rooms.length ? rooms.map(r=>{
-      const name = r.friendDisplayName || r.friendName || r.username || 'Conversa';
-      return '<div class="chat-room-item" data-open-direct="'+(r.friendUserId||r.userId||r.id)+'" data-room-label="'+esc(name)+'"><div class="avatar" style="width:32px;height:32px;font-size:12px;">'+esc(initials(name))+'</div><div class="meta"><div class="title" style="font-size:13px;">'+esc(name)+'</div></div></div>';
-    }).join('') : '<div class="empty" style="padding:20px 10px;">Nenhuma conversa ainda.<br><button class="link-btn" data-nav="friends">Ver amigos</button></div>';
+    const [convosRaw, friendsRaw] = await Promise.all([
+      api('/chat/direct').catch(()=>[]),
+      api('/friends').catch(()=>[])
+    ]);
+    const convos = Array.isArray(convosRaw)?convosRaw:(convosRaw?.content||[]);
+    const friends = Array.isArray(friendsRaw)?friendsRaw:(friendsRaw?.content||[]);
+
+    // A API só lista conversas JÁ existentes (GET /chat/direct), então sem isso
+    // amigos com quem você nunca mandou mensagem nunca apareciam aqui. Agora
+    // mesclamos com a lista de amigos: toda amizade vira uma entrada clicável,
+    // e clicar cria a conversa na hora via GET /chat/direct/{friendUserId}.
+    const convoByFriend = {};
+    convos.forEach(c=>{ const fid = c.friendUserId ?? c.userId ?? c.id; if(fid) convoByFriend[fid]=c; });
+
+    const entries = friends.map(f=>{
+      const fid = f.friendUserId ?? f.userId ?? f.id;
+      const c = convoByFriend[fid];
+      const name = (c && (c.friendDisplayName || c.friendName)) || f.displayName || f.name || f.username || 'Amigo';
+      return { friendId: fid, name, online: f.online, hasConvo: !!c };
+    }).filter(en => en.friendId);
+
+    el.innerHTML = entries.length ? entries.map(en=>
+      '<div class="chat-room-item" data-open-direct="'+en.friendId+'"><div class="avatar" style="width:32px;height:32px;font-size:12px;">'+esc(initials(en.name))+'</div>'+
+      '<div class="meta"><div class="title" style="font-size:13px;">'+esc(en.name)+(en.online?' <span class="badge-dot online" style="margin-left:2px;"></span>':'')+'</div>'+
+      '<div class="sub">'+(en.hasConvo?'Conversa iniciada':'Iniciar conversa')+'</div></div></div>'
+    ).join('') : '<div class="empty" style="padding:20px 10px;">Você ainda não tem amigos.<br><button class="link-btn" data-nav="friends">Buscar amigos</button></div>';
+
     $$('[data-open-direct]', el).forEach(item=>item.addEventListener('click', async ()=>{
       $$('.chat-room-item', el).forEach(x=>x.classList.remove('active')); item.classList.add('active');
       try{
@@ -890,9 +912,9 @@ async function loadThemeRoomList(){
   try{
     const interests = await api('/interests');
     const list = Array.isArray(interests)?interests:(interests?.content||[]);
-    const withRoom = list.filter(i=>i.roomId || i.chatRoomId || i.room);
+    const withRoom = list.filter(i=>i.themeRoomId);
     el.innerHTML = withRoom.length ? withRoom.map(i=>{
-      const rid = i.roomId || i.chatRoomId || (i.room && i.room.id);
+      const rid = i.themeRoomId;
       return '<div class="chat-room-item" data-open-room="'+rid+'"><span class="material-symbols-outlined" style="font-size:18px;color:var(--mint-700);">tag</span><div class="meta"><div class="title" style="font-size:13px;">'+esc(i.name||i.label)+'</div></div></div>';
     }).join('') : '<div class="empty" style="padding:20px 10px;">Nenhuma sala temática vinculada aos seus interesses ainda.<br><button class="link-btn" data-nav="interests">Escolher interesses</button></div>';
     $$('[data-open-room]', el).forEach(item=>item.addEventListener('click', async ()=>{
@@ -1040,7 +1062,7 @@ function wire_breathing(){
   if(breathState.sessionMode && breathState.technique){ wireBreathingSession(breathState.technique); return; }
   loadInto('breathing-list', ()=>api('/breathing/techniques'), (list)=>{
     breathState.list = Array.isArray(list)?list:(list?.content||[]);
-    return breathState.list.map(t=>'<div class="list-item" data-pick-technique="'+t.id+'" style="cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--mint-700);">air</span><div class="meta"><div class="title">'+esc(t.name)+'</div><div class="sub">'+esc(t.description||(t.inhaleSeconds+'s inspirar · '+t.holdSeconds+'s segurar · '+t.exhaleSeconds+'s expirar'))+'</div></div><span class="material-symbols-outlined">chevron_right</span></div>').join('') || '<div class="empty">Nenhuma técnica encontrada.</div>';
+    return breathState.list.map(t=>'<div class="list-item" data-pick-technique="'+t.id+'" style="cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--mint-700);">air</span><div class="meta"><div class="title">'+esc(t.name)+'</div><div class="sub">'+esc(t.description||(t.inhaleSeconds+'s inspirar · '+t.holdAfterInhaleSeconds+'s segurar · '+t.exhaleSeconds+'s expirar'))+'</div></div><span class="material-symbols-outlined">chevron_right</span></div>').join('') || '<div class="empty">Nenhuma técnica encontrada.</div>';
   }, (list)=>{
     breathState.list = Array.isArray(list)?list:(list?.content||[]);
     $$('[data-pick-technique]').forEach(el=>el.addEventListener('click', ()=>{
@@ -1060,20 +1082,20 @@ function wireBreathingSession(t){
     clearInterval(breathState.timer); breathState.running=false; breathState.sessionMode=false; breathState.technique=null;
     rerenderContent();
   });
-  const inhale = t.inhaleSeconds||t.inhale||4, hold1 = t.holdSeconds||t.hold||4, exhale = t.exhaleSeconds||t.exhale||4, hold2 = t.hold2Seconds||t.pause||0;
+  const inhale = t.inhaleSeconds||4, hold1 = t.holdAfterInhaleSeconds||0, exhale = t.exhaleSeconds||4, hold2 = t.holdAfterExhaleSeconds||0;
   const BASE = 1, PEAK = 1.4;
   // O círculo cresce suavemente durante "Inspire" (até PEAK), fica parado durante "Segure"
   // (mesmo valor de escala = sem transição visível = realmente "para"), e murcha suavemente
   // durante "Expire" — cada transição dura exatamente o tempo da fase (não um valor fixo).
   const phases = [
-    {n:'Inspire', s:inhale, scale:PEAK},
-    {n:'Segure',  s:hold1,  scale:PEAK},
-    {n:'Expire',  s:exhale, scale:BASE}
+    {n:'Inspire', s:inhale, scale:PEAK}
   ];
+  if(hold1>0) phases.push({n:'Segure', s:hold1, scale:PEAK});
+  phases.push({n:'Expire', s:exhale, scale:BASE});
   if(hold2>0) phases.push({n:'Segure', s:hold2, scale:BASE});
 
   const circle = $('#breathe-circle'), phaseLbl=$('#breathe-phase'), secLbl=$('#breathe-secs');
-  let pIdx = 0, secLeft = phases[0].s;
+  let pIdx = 0, secLeft = phases[0].s, elapsedSeconds = 0;
 
   function applyPhase(idx){
     const p = phases[idx];
@@ -1093,10 +1115,10 @@ function wireBreathingSession(t){
     breathState.running = true; this.textContent = 'Pausar';
     applyPhase(pIdx);
     breathState.timer = setInterval(()=>{
-      secLeft--;
+      secLeft--; elapsedSeconds++;
       if(secLeft <= 0){
         pIdx = (pIdx+1) % phases.length; secLeft = phases[pIdx].s; applyPhase(pIdx);
-        if(pIdx===0) completeBreathingCycle(t);
+        if(pIdx===0) completeBreathingCycle(t, elapsedSeconds);
       } else {
         secLbl.textContent = secLeft;
       }
@@ -1104,9 +1126,14 @@ function wireBreathingSession(t){
   });
 }
 let breathCompletedOnce = {};
-async function completeBreathingCycle(t){
+async function completeBreathingCycle(t, durationSeconds){
   if(breathCompletedOnce[t.id]) return; breathCompletedOnce[t.id]=true;
-  try{ await api('/breathing/techniques/'+t.id+'/complete', {method:'POST'}); toast('Sessão registrada! +XP','success'); }catch(e){}
+  try{
+    // CompleteBreathingSessionRequest exige durationSeconds (validado com @Valid) —
+    // mandar corpo vazio causava 400.
+    await api('/breathing/techniques/'+t.id+'/complete', {method:'POST', body:{durationSeconds: durationSeconds || (t.inhaleSeconds+t.exhaleSeconds) || 30}});
+    toast('Sessão registrada! +XP','success');
+  }catch(e){ toast(e.message || 'Não foi possível registrar a sessão.', 'error'); }
 }
 
 /* =========================================================
@@ -1185,7 +1212,7 @@ function wire_tasks(){
       if(!list.length) return '<div class="empty"><span class="material-symbols-outlined">military_tech</span>Nenhuma missão gerada para hoje ainda.</div>';
       return list.map(m=>'<div class="list-item"><span class="material-symbols-outlined" style="color:var(--mint-700);">'+(m.completed?'check_circle':'radio_button_unchecked')+'</span>'+
         '<div class="meta"><div class="title">'+esc(m.title||m.templateName)+'</div><div class="sub">'+esc(m.description||'')+' · +'+(m.xpReward||m.xp||0)+' XP</div></div>'+
-        (m.completed?'<span class="pill">Concluída</span>':'<button class="btn btn-primary btn-sm" data-complete-mission="'+m.id+'">Concluir</button>')+'</div>').join('');
+        (m.completed?'<span class="pill">Concluída</span>':'<button class="btn btn-primary btn-sm" data-complete-mission="'+(m.dailyMissionId??m.id)+'">Concluir</button>')+'</div>').join('');
     }, ()=>{
       $$('[data-complete-mission]').forEach(b=>b.addEventListener('click', async ()=>{ try{ await api('/missions/daily/'+b.getAttribute('data-complete-mission')+'/complete',{method:'POST'}); toast('Missão concluída! +XP','success'); rerenderContent(); }catch(e){toast(e.message,'error');} }));
     });
@@ -1270,9 +1297,9 @@ function ViewInterests(){
 function wire_interests(){
   loadInto('interests-panel', ()=>api('/interests'), (data)=>{
     const list = Array.isArray(data)?data:(data?.content||[]);
-    interestSelection = new Set(list.filter(i=>i.selected ?? i.isSelected ?? i.chosen ?? i.mine).map(i=>i.id));
+    interestSelection = new Set(list.filter(i=>i.selectedByMe).map(i=>i.id));
     return '<div class="row gap-8" style="flex-wrap:wrap;">'+list.map(i=>
-      '<button class="tab" data-toggle-interest="'+i.id+'" style="border:1.5px solid '+(interestSelection.has(i.id)?'var(--mint-700)':'var(--border)')+';background:'+(interestSelection.has(i.id)?'var(--mint-soft)':'#fff')+';">'+esc(i.name||i.label)+(i.hasRoom||i.roomId?' <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">tag</span>':'')+'</button>'
+      '<button class="tab" data-toggle-interest="'+i.id+'" style="border:1.5px solid '+(interestSelection.has(i.id)?'var(--mint-700)':'var(--border)')+';background:'+(interestSelection.has(i.id)?'var(--mint-soft)':'#fff')+';">'+esc(i.name||i.label)+(i.themeRoomId?' <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">tag</span>':'')+'</button>'
     ).join('')+'</div><button class="btn btn-primary" id="save-interests" style="margin-top:18px;">Salvar interesses</button>';
   }, (data)=>{
     const list = Array.isArray(data)?data:(data?.content||[]);
